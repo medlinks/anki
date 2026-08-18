@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="ja" class="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="暗記カード">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<title>予備試験 暗記カード · Anki Web</title>
+<style>
+:root{
+  --bg:#0b1220; --bg2:#0f172a; --panel:#151f33; --panel2:#1b2740;
+  --text:#e8eef7; --muted:#8ea0bb; --line:#26344f;
+  --brand:#2dd4bf; --brand2:#0ea5e9; --grad:linear-gradient(135deg,#0d9488,#0369a1);
+  --again:#e11d48; --hard:#f59e0b; --good:#16a34a; --easy:#0ea5e9;
+  --new:#38bdf8; --learn:#f472b6; --due:#34d399;
+  --shadow:0 14px 40px rgba(0,0,0,.38);
+}
+html.light{
+  --bg:#eef2f8; --bg2:#e6ecf5; --panel:#ffffff; --panel2:#f4f7fb;
+  --text:#152033; --muted:#64748b; --line:#dde5ef;
+  --shadow:0 10px 30px rgba(20,40,80,.10);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);
+ font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP","PingFang SC","Microsoft YaHei",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+ font-size:15px;line-height:1.65;display:flex;flex-direction:column;transition:background .25s,color .25s}
+button{font-family:inherit}
+.app{width:100%;max-width:780px;margin:0 auto;padding:calc(14px + env(safe-area-inset-top)) 14px 96px;flex:1;display:flex;flex-direction:column;gap:14px}
+
+/* ---------- header ---------- */
+header{display:flex;align-items:center;gap:10px}
+.logo{font-size:17px;font-weight:800;letter-spacing:.4px;display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.logo .dot{width:10px;height:10px;border-radius:50%;background:var(--grad);flex:0 0 auto;box-shadow:0 0 12px var(--brand)}
+.logo small{display:block;font-size:11px;font-weight:500;color:var(--muted);letter-spacing:0}
+.iconbtn{background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:11px;
+ width:38px;height:38px;font-size:16px;cursor:pointer;flex:0 0 auto;display:grid;place-items:center;transition:.15s}
+.iconbtn:hover{border-color:var(--brand);color:var(--brand)}
+
+/* ---------- generic ---------- */
+.card-panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+.row{display:flex;align-items:center;gap:10px}
+.sp{flex:1}
+h2{font-size:14px;margin:0 0 10px;color:var(--muted);font-weight:700;letter-spacing:.6px;text-transform:uppercase}
+.btn{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:11px;padding:9px 14px;
+ font-size:13.5px;font-weight:600;cursor:pointer;transition:.15s}
+.btn:hover{border-color:var(--brand);color:var(--brand)}
+.btn.primary{background:var(--grad);border:none;color:#fff;box-shadow:0 6px 18px rgba(13,148,136,.3)}
+.btn.primary:hover{color:#fff;filter:brightness(1.08)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+input,textarea,select{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:11px;
+ padding:10px 12px;font-size:14px;font-family:inherit;width:100%}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--brand)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:99px;
+ background:var(--panel2);border:1px solid var(--line);color:var(--muted)}
+.chip.new{color:var(--new);border-color:color-mix(in srgb,var(--new) 45%,transparent)}
+.chip.learn{color:var(--learn);border-color:color-mix(in srgb,var(--learn) 45%,transparent)}
+.chip.due{color:var(--due);border-color:color-mix(in srgb,var(--due) 45%,transparent)}
+
+/* ---------- deck list ---------- */
+.deck{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:14px;background:var(--panel);
+ border:1px solid var(--line);cursor:pointer;transition:.15s;margin-bottom:9px}
+.deck:hover{border-color:var(--brand);transform:translateY(-1px)}
+.deck .nm{flex:1;min-width:0}
+.deck .nm b{display:block;font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.deck .nm span{font-size:11.5px;color:var(--muted)}
+.deck .counts{display:flex;gap:6px;flex:0 0 auto}
+.bar{height:6px;border-radius:99px;background:var(--panel2);overflow:hidden;margin-top:7px;display:flex}
+.bar i{display:block;height:100%}
+.bar i.b-new{background:var(--new)} .bar i.b-learn{background:var(--learn)}
+.bar i.b-young{background:#a3e635} .bar i.b-mature{background:var(--good)}
+
+/* ---------- study ---------- */
+.studyhead{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+.pbar{height:5px;border-radius:99px;background:var(--panel);overflow:hidden;border:1px solid var(--line)}
+.pbar i{display:block;height:100%;background:var(--grad);width:0;transition:width .3s}
+.scene{perspective:1600px;min-height:340px;display:flex}
+.flip{position:relative;width:100%;transform-style:preserve-3d;transition:transform .48s cubic-bezier(.4,.15,.2,1);cursor:pointer}
+.flip.flipped{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:20px;
+ padding:42px 22px 46px;display:flex;flex-direction:column;justify-content:center;box-shadow:var(--shadow);overflow:auto}
+.face .tag{position:absolute;top:13px;left:18px;font-size:10.5px;font-weight:800;letter-spacing:1.2px;opacity:.7;text-transform:uppercase}
+.face .hint{position:absolute;bottom:13px;left:0;right:0;text-align:center;font-size:11px;opacity:.6}
+.front{background:linear-gradient(155deg,#0369a1,#1e3a8a);color:#fff}
+.back{background:linear-gradient(155deg,#0f766e,#134e4a);color:#fff;transform:rotateY(180deg)}
+html.light .front{background:linear-gradient(155deg,#0284c7,#1d4ed8)}
+html.light .back{background:linear-gradient(155deg,#0d9488,#115e59)}
+.qtext{font-size:19px;font-weight:700;line-height:1.6;text-align:center;white-space:pre-wrap}
+.atext{font-size:17.5px;font-weight:700;line-height:1.7;white-space:pre-wrap}
+.anote{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.28);font-size:13px;font-weight:400;opacity:.9;white-space:pre-wrap}
+.aq{font-size:12.5px;opacity:.72;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.2);white-space:pre-wrap}
+.grades{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.grades button{border:none;border-radius:13px;padding:11px 4px;color:#fff;font-size:13.5px;font-weight:800;cursor:pointer;
+ display:flex;flex-direction:column;gap:2px;align-items:center;transition:.15s}
+.grades button:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.grades button small{font-size:10.5px;font-weight:600;opacity:.85}
+.g1{background:var(--again)} .g2{background:var(--hard)} .g3{background:var(--good)} .g4{background:var(--easy)}
+.showbtn{width:100%;border:none;border-radius:13px;padding:13px;background:var(--grad);color:#fff;font-size:15px;font-weight:800;cursor:pointer}
+.donebox{text-align:center;padding:38px 18px}
+.donebox .big{font-size:44px}
+
+/* ---------- browse ---------- */
+.brow{padding:11px 13px;border-radius:12px;background:var(--panel);border:1px solid var(--line);margin-bottom:7px;cursor:pointer}
+.brow:hover{border-color:var(--brand)}
+.brow .q{font-size:14px;font-weight:600}
+.brow .a{font-size:12.5px;color:var(--muted);margin-top:3px;display:none;white-space:pre-wrap}
+.brow.open .a{display:block}
+.brow .meta{font-size:10.5px;color:var(--muted);margin-top:5px;display:flex;gap:6px;flex-wrap:wrap}
+
+/* ---------- stats ---------- */
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center}
+.kpi b{display:block;font-size:22px;font-weight:800;line-height:1.2}
+.kpi span{font-size:10.5px;color:var(--muted)}
+.fc{display:flex;align-items:flex-end;gap:3px;height:110px;margin-top:8px}
+.fc div{flex:1;background:var(--grad);border-radius:4px 4px 0 0;min-height:2px;position:relative}
+.fclabels{display:flex;gap:3px;font-size:9.5px;color:var(--muted);margin-top:4px}
+.fclabels span{flex:1;text-align:center}
+
+/* ---------- nav ---------- */
+nav{position:fixed;left:0;right:0;bottom:0;background:color-mix(in srgb,var(--panel) 92%,transparent);
+ backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;justify-content:center;
+ padding:7px 8px calc(7px + env(safe-area-inset-bottom));z-index:40}
+nav .inner{width:100%;max-width:780px;display:flex}
+nav button{flex:1;background:none;border:none;color:var(--muted);font-size:10.5px;font-weight:700;cursor:pointer;
+ padding:5px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:10px}
+nav button em{font-style:normal;font-size:18px;line-height:1}
+nav button.active{color:var(--brand)}
+
+/* ---------- modal ---------- */
+.mask{position:fixed;inset:0;background:rgba(3,8,18,.72);display:none;align-items:center;justify-content:center;padding:16px;z-index:60}
+.mask.on{display:flex}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:18px;width:100%;max-width:620px;
+ max-height:86vh;overflow:auto;padding:20px;box-shadow:var(--shadow)}
+.modal h3{margin:0 0 4px;font-size:17px}
+.modal p.sub{margin:0 0 14px;font-size:12.5px;color:var(--muted)}
+.updbar{position:fixed;left:0;right:0;top:0;z-index:70;background:var(--grad);color:#fff;
+ padding:calc(9px + env(safe-area-inset-top)) 14px 9px;font-size:13px;font-weight:700;display:none;
+ align-items:center;gap:10px;justify-content:center;box-shadow:0 4px 18px rgba(0,0,0,.35)}
+.updbar.on{display:flex}
+.updbar button{background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.5);color:#fff;
+ border-radius:9px;padding:5px 12px;font-size:12.5px;font-weight:800;cursor:pointer}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:86px;background:var(--panel);border:1px solid var(--brand);
+ color:var(--text);padding:10px 16px;border-radius:12px;font-size:13px;font-weight:600;z-index:80;box-shadow:var(--shadow);
+ opacity:0;pointer-events:none;transition:.25s}
+.toast.on{opacity:1}
+code{background:var(--panel2);padding:1px 5px;border-radius:5px;font-size:12px}
+.hide{display:none!important}
+@media(max-width:420px){ .qtext{font-size:17px} .atext{font-size:16px} .grid4{grid-template-columns:repeat(2,1fr)} }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo"><span class="dot"></span><div>予備試験 暗記カード<small id="subttl">免疫学 · 解剖学</small></div></div>
+    <button class="iconbtn" id="btnTheme" title="テーマ">🌓</button>
+    <button class="iconbtn" id="btnSet" title="設定・管理">⚙</button>
+  </header>
+  <div id="view"></div>
+</div>
+<nav><div class="inner">
+  <button data-v="home" class="active"><em>🏠</em>ホーム</button>
+  <button data-v="study"><em>🎴</em>学習</button>
+  <button data-v="browse"><em>🔍</em>一覧</button>
+  <button data-v="stats"><em>📊</em>統計</button>
+</div></nav>
+<div class="updbar" id="updbar">新しいバージョンがあります<button id="updbtn">今すぐ更新</button></div>
+<div class="mask" id="mask"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const CARD_DATA = `
+免疫学::01 MHC・抗原処理	MHC class I に対応する HLA 分子は？	HLA-A / HLA-B / HLA-C	非古典的 class I：HLA-E / F / G	MHC,構造
+免疫学::01 MHC・抗原処理	MHC class II に対応する HLA 分子は？	HLA-DP / HLA-DQ / HLA-DR	professional APC に発現	MHC,構造
+免疫学::01 MHC・抗原処理	MHC class I の分子構造は？	α重鎖（α1・α2・α3）＋ β₂-microglobulin	β₂m は非 MHC 遺伝子産物	MHC,構造
+免疫学::01 MHC・抗原処理	MHC class II の分子構造は？	α鎖 ＋ β鎖（いずれも膜貫通型）	class I と違い β₂m を含まない	MHC,構造
+免疫学::01 MHC・抗原処理	MHC class I のペプチド結合溝を形成するドメインと溝の特徴は？	α1＋α2 が形成し、両端が閉じる → ペプチド長は 8–10 aa	閉じる＝短いペプチドしか載らない	MHC,構造
+免疫学::01 MHC・抗原処理	MHC class II のペプチド結合溝を形成するドメインと溝の特徴は？	α1＋β1 が形成し、両端が開く → ペプチド長は 13–25 aa	開く＝長いペプチドが載る	MHC,構造
+免疫学::01 MHC・抗原処理	CD8 が結合する MHC のドメインは？	MHC class I の α3 domain	CD8 は CTL の co-receptor	MHC,T細胞
+免疫学::01 MHC・抗原処理	CD4 が結合する MHC のドメインは？	MHC class II の β2 domain	CD4 は helper T の co-receptor	MHC,T細胞
+免疫学::01 MHC・抗原処理	MHC class I を発現する細胞は？	ほぼすべての有核細胞	例外に注意（赤血球）	MHC,発現
+免疫学::01 MHC・抗原処理	MHC class II を発現する細胞は？	professional APC：樹状細胞・マクロファージ・B細胞	IFN-γ で他の細胞にも誘導され得る	MHC,発現
+免疫学::01 MHC・抗原処理	MHC class I も II も発現しない血球は？	成熟赤血球（無核のため I(−)・II(−)）	頻出のひっかけ	MHC,発現,頻出
+免疫学::01 MHC・抗原処理	無核であるのに MHC class I を発現する血球は？	血小板（MHC class I (+)）	HLA 適合血小板輸血の根拠	MHC,発現,頻出
+免疫学::01 MHC・抗原処理	polygenic（多遺伝子性）とは？	A/B/C、DP/DQ/DR など複数の遺伝子座をもつこと	polymorphic と区別する	MHC,遺伝
+免疫学::01 MHC・抗原処理	polymorphic（遺伝子多型）とは？	各遺伝子座に多数の allele が存在すること	class I・II 共通の特徴	MHC,遺伝
+免疫学::01 MHC・抗原処理	codominant（共優性）とは？	父由来・母由来の HLA allele を両方とも発現すること	F1・移植問題の基礎	MHC,遺伝
+免疫学::01 MHC・抗原処理	MHC class I / II と抗原処理分子の発現を増強するサイトカインは？	IFN-γ（一般細胞にも MHC class II を誘導し得る）	immunoproteasome も誘導	MHC,発現
+免疫学::01 MHC・抗原処理	内因性抗原（ウイルス・腫瘍・細胞質タンパク）の処理・提示経路を順に述べよ	① 細胞質タンパク → ② ubiquitin で標識 → ③ proteasome / immunoproteasome で分解 → ④ TAP1/2 で ER へ輸送 → ⑤ ERAP で trim → ⑥ α重鎖＋β₂m と組立 → ⑦ tapasin・calreticulin・ERp57 で loading → ⑧ Golgi 経由で細胞表面 → ⑨ CD8⁺ CTL が認識	class I 経路	抗原処理,classI
+免疫学::01 MHC・抗原処理	外因性抗原（細菌・取り込まれたタンパク）の処理・提示経路を順に述べよ	① phagocytosis / endocytosis / BCR で取り込み → ② endosome / lysosome で分解 → ③ MHC II α/β鎖を ER で合成 → ④ invariant chain（Ii / CD74）が溝を保護 → ⑤ Ii 分解後 CLIP が残る → ⑥ HLA-DM が CLIP を除去 → ⑦ 抗原ペプチドを loading（HLA-DO が DM を調節）→ ⑧ 細胞表面へ → ⑨ CD4⁺ Th が認識	class II 経路	抗原処理,classII
+免疫学::01 MHC・抗原処理	TAP1/2 の役割は？	細胞質のペプチドを ER 内腔へ輸送する	class I 経路。欠損で class I 発現低下	抗原処理,classI
+免疫学::01 MHC・抗原処理	ERAP の役割は？	ER 内でペプチドの N 末端を trim し、class I に適した 8–10 aa に調整する	aminopeptidase	抗原処理,classI
+免疫学::01 MHC・抗原処理	MHC class I の peptide loading complex を構成するシャペロンは？	tapasin・calreticulin・ERp57	loading の安定化	抗原処理,classI
+免疫学::01 MHC・抗原処理	invariant chain（Ii / CD74）の役割は？	ER で新生 MHC class II の溝を塞ぎ、内因性ペプチドの結合を防ぐ	class II 経路の要	抗原処理,classII
+免疫学::01 MHC・抗原処理	CLIP とは何か？	invariant chain が分解された後に MHC class II の溝に残る断片	class II-associated invariant chain peptide	抗原処理,classII
+免疫学::01 MHC・抗原処理	CLIP を除去して抗原ペプチドと交換する分子は？	HLA-DM	非古典的 MHC II 分子	抗原処理,classII
+免疫学::01 MHC・抗原処理	HLA-DM の働きを調節する分子は？	HLA-DO	B細胞・胸腺髄質で発現	抗原処理,classII
+免疫学::01 MHC・抗原処理	cross-presentation（交差提示）とは？	外因性抗原を MHC class I に載せて提示する機構。樹状細胞が naive CD8⁺ T細胞を priming できる	原則（外因性→II）の例外	抗原処理,例外
+免疫学::01 MHC・抗原処理	autophagy-mediated presentation とは？	細胞質（内因性）成分を MHC class II に載せて CD4⁺ T細胞へ提示する機構	原則（内因性→I）の例外	抗原処理,例外
+免疫学::01 MHC・抗原処理	脂質抗原を提示する分子は？	CD1（NKT細胞などが認識）	MHC 様分子、β₂m と会合	抗原処理,例外
+免疫学::01 MHC・抗原処理	TCR が認識するものは？	peptide–MHC 複合体（遊離抗原は直接認識しない）	MHC 依存	T細胞,認識
+免疫学::01 MHC・抗原処理	BCR・抗体が認識するものは？	天然構造（立体構造）の抗原そのもの。MHC 非依存	T細胞との決定的な違い	T細胞,認識
+免疫学::01 MHC・抗原処理	CAR（chimeric antigen receptor）の抗原認識は MHC 依存か？	MHC 非依存。細胞表面抗原を直接認識する	CAR-T 療法の原理	T細胞,認識
+免疫学::01 MHC・抗原処理	MHC restriction（MHC 拘束性）とは？	T細胞が「自己 MHC ＋ 特定ペプチド」の組合せを認識すること。胸腺の正の選択で成立する	MHC I 認識型→CD8、MHC II 認識型→CD4	T細胞,認識
+免疫学::01 MHC・抗原処理	分化する環境によって抗原を MHC 拘束性に認識する様式が変わる細胞は？	T細胞（胸腺の環境の MHC で決まる）	2019年 第36問	T細胞,頻出
+免疫学::01 MHC・抗原処理	naive T細胞活性化に必要な Signal 1 と Signal 2 は？	Signal 1：TCR – peptide/MHC　Signal 2：B7-1/B7-2（CD80/86）– CD28	詳細は第02モジュール	T細胞,活性化
+免疫学::01 MHC・抗原処理	共刺激（Signal 2）を受けずに Signal 1 のみを受けた T細胞はどうなる？	anergy（アナジー、不応答）に陥る	末梢性トレランスの機構	T細胞,活性化
+免疫学::01 MHC・抗原処理	T細胞の活性化を抑制する代表的分子は？	CTLA-4（CD152）、PD-1 / PD-L1	CD28・OX40・CD40L は促進側	T細胞,頻出
+免疫学::01 MHC・抗原処理	missing-self 仮説とは？	標的細胞の MHC class I が低下・欠失すると NK の抑制シグナルが消え、NK が攻撃するという考え方	ウイルス感染・腫瘍で起こる	NK
+免疫学::01 MHC・抗原処理	NK 細胞の抑制性受容体とそのリガンドは？	KIR — MHC class I、CD94/NKG2A — HLA-E	正常細胞では抑制がかかる	NK
+免疫学::01 MHC・抗原処理	HLA-E は何を提示し、どの受容体に結合するか？	MHC class I の leader peptide を提示し、NK の CD94/NKG2A に結合する	非古典的 class I	NK,頻出
+免疫学::01 MHC・抗原処理	NKG2D のリガンドは？	MICA / MICB などの stress ligand（活性化シグナル）	ストレス・傷害細胞で発現	NK
+免疫学::01 MHC・抗原処理	NK 細胞にとって最も良い標的細胞の状態は？	ストレス抗原(＋) かつ MHC class I(−)　＝ 活性化↑・抑制↓	2018年 第32問	NK,頻出
+免疫学::01 MHC・抗原処理	CD3⁻ CD56⁺ の細胞は何か。相互作用で確認すべき分子は？	NK 細胞。相手側の HLA-E / MHC class I を確認する	2019年 第35問	NK,頻出
+免疫学::01 MHC・抗原処理	「MHC class II が提示するペプチドは class I より短い」は正しいか？	誤り。class I が 8–10 aa と短く、class II が 13–25 aa と長い	2018年 第31問のひっかけ	頻出
+免疫学::01 MHC・抗原処理	MHC class I と class II の共通点は？	polygenic であること、polymorphic（遺伝子多型）であること	発現細胞・CD4/CD8 対応・ペプチド長は異なる	頻出
+免疫学::01 MHC・抗原処理	MHC class I の発現が低下すると CTL と NK はそれぞれどうなるか？	CTL：認識↓（攻撃できない）　NK：攻撃↑（missing-self）	腫瘍の免疫逃避と NK	頻出,NK
+免疫学::01 MHC・抗原処理	CD8 陽性 T細胞がウイルス抗原断片を認識する際の co-receptor は？	CD8（MHC class I の α3 domain に結合）	CD2・CD40・CD90 は co-receptor ではない	頻出,T細胞
+免疫学::01 MHC・抗原処理	ヒト CD4 陽性 T細胞が認識する主要組織適合抗原は？	HLA-DR（MHC class II）	HLA-A/B/C は class I、HLA-E は非古典的 class I	頻出,T細胞
+微生物学::01 グラム染色	グラム陽性菌と陰性菌のペプチドグリカン層の違いは？	陽性菌：厚い・多層（20〜80 nm）／陰性菌：薄い・1〜2 層（2〜7 nm）	最も基本的な違い	微生物,グラム染色,頻出
+微生物学::01 グラム染色	外膜はどちらにあるか？	グラム陰性菌にのみ存在（脂質二重層）。陽性菌にはない	外膜がバリアになる	微生物,グラム染色,頻出
+微生物学::01 グラム染色	タイコ酸・リポタイコ酸はどちらにあるか？	グラム陽性菌にのみ存在	陰性菌にはない	微生物,グラム染色,頻出
+微生物学::01 グラム染色	リポ多糖（LPS・内毒素）はどちらにあるか。毒性本体は？	グラム陰性菌の外膜に存在。毒性本体はリピド A	陽性菌には LPS がない	微生物,グラム染色,頻出
+微生物学::01 グラム染色	周質（ペリプラズム）はどちらにあるか。そこに何があるか？	グラム陰性菌に存在。βラクタマーゼなどの酵素が存在する	陽性菌はほぼなし	微生物,グラム染色
+微生物学::01 グラム染色	細胞膜の枚数は陽性菌・陰性菌でそれぞれ何枚か？	陽性菌：1 枚（細胞膜のみ）／陰性菌：2 枚（内膜＋外膜）	—	微生物,グラム染色
+微生物学::01 グラム染色	細胞壁の主要構成成分を陽性菌・陰性菌で比較せよ	陽性菌：ペプチドグリカン、タイコ酸、リポタイコ酸／陰性菌：ペプチドグリカン、LPS、リン脂質、リポタンパク	—	微生物,グラム染色
+微生物学::01 グラム染色	グラム染色でそれぞれ何色に染まるか？	陽性菌：紫（脱色されない）／陰性菌：赤〜ピンク（脱色後サフラニンで対比染色）	厚いペプチドグリカンがクリスタル紫を保持	微生物,グラム染色,頻出
+微生物学::01 グラム染色	抗菌薬（ペニシリン・バンコマイシン）への感受性の違いは？	陽性菌：感受性が高い／陰性菌：外膜がバリアとなり耐性を示すことが多い	バンコマイシンは陰性菌に無効	微生物,グラム染色,頻出
+微生物学::01 グラム染色	溶菌酵素（リゾチーム）への感受性の違いは？	陽性菌：感受性が高い／陰性菌：外膜が防御するため感受性が低い	リゾチームはペプチドグリカンを分解	微生物,グラム染色
+微生物学::01 グラム染色	芽胞を形成するのはどちらか？	グラム陽性菌の一部の桿菌（バシラス属、クロストリジウム属）。陰性菌は基本的に形成しない	—	微生物,グラム染色,頻出
+微生物学::01 グラム染色	産生する毒素の違いは？	陽性菌：外毒素を産生する菌が多い／陰性菌：内毒素（LPS）＋ 外毒素を産生する菌もある	内毒素＝菌体成分、外毒素＝分泌タンパク	微生物,グラム染色,頻出
+微生物学::01 グラム染色	耐乾燥性・耐熱性の違いは？	陽性菌：比較的強い／陰性菌：比較的弱い	芽胞形成能も関係	微生物,グラム染色
+微生物学::01 グラム染色	胆汁・界面活性剤への耐性の違いは？	陽性菌：感受性が高い（壊れやすい）／陰性菌：耐性がある（外膜のため）	腸内で生き残るのは陰性菌	微生物,グラム染色
+微生物学::01 グラム染色	グラム陽性菌の重要ポイントを 3 つにまとめよ	① 厚いペプチドグリカンとタイコ酸が特徴　② 外膜や LPS がない　③ 抗菌薬・溶菌酵素に感受性が高い	—	微生物,グラム染色,まとめ,頻出
+微生物学::01 グラム染色	グラム陰性菌の重要ポイントを 3 つにまとめよ	① 外膜と LPS（内毒素）が特徴　② ペプチドグリカンは薄く、周質がある　③ 抗菌薬や溶菌酵素に耐性を示しやすい	—	微生物,グラム染色,まとめ,頻出
+微生物学::01 グラム染色	内毒素（エンドトキシン）と外毒素の違いは？	内毒素：グラム陰性菌の LPS（リピドA）、菌体成分、耐熱性、発熱・ショックを起こす／外毒素：菌が分泌するタンパク、易熱性、毒性が強く特異的	トキソイド化できるのは外毒素	微生物,グラム染色,まとめ,頻出
+微生物学::02 グラム陽性菌	グラム陽性の球菌に含まれる菌属を 3 つ挙げよ	ブドウ球菌属・レンサ球菌属・腸球菌属	いずれもグラム陽性球菌	微生物,陽性菌,分類
+微生物学::02 グラム陽性菌	ブドウ球菌属（Staphylococcus）の代表菌は？	黄色ブドウ球菌・表皮ブドウ球菌・腐生ブドウ球菌	カタラーゼ陽性、ブドウの房状	微生物,陽性菌,球菌
+微生物学::02 グラム陽性菌	レンサ球菌属（Streptococcus）の代表菌は？	化膿レンサ球菌（A群）・無乳レンサ球菌（B群）・肺炎球菌・緑色レンサ球菌	カタラーゼ陰性、連鎖状	微生物,陽性菌,球菌
+微生物学::02 グラム陽性菌	腸球菌属（Enterococcus）の代表菌は？	フェカリス菌（E. faecalis）・フェシウム菌（E. faecium）	VRE が問題になる	微生物,陽性菌,球菌
+微生物学::02 グラム陽性菌	グラム陽性の芽胞形成桿菌に含まれる菌属は？	バシラス属（好気性）・クロストリジウム属（嫌気性）	芽胞をつくるのはこの 2 属	微生物,陽性菌,分類,頻出
+微生物学::02 グラム陽性菌	バシラス属（Bacillus）の代表菌は？	炭疽菌・セレウス菌	好気性の芽胞形成桿菌	微生物,陽性菌,桿菌
+微生物学::02 グラム陽性菌	クロストリジウム属（Clostridium）の代表菌は？	破傷風菌・ボツリヌス菌・ウェルシュ菌・ディフィシル菌	偏性嫌気性の芽胞形成桿菌	微生物,陽性菌,桿菌,頻出
+微生物学::02 グラム陽性菌	グラム陽性の無芽胞桿菌に含まれる菌属を 3 つ挙げよ	コリネバクテリウム属・リステリア属・ラクトバチルス属	芽胞をつくらない	微生物,陽性菌,分類
+微生物学::02 グラム陽性菌	コリネバクテリウム属の代表菌は？	ジフテリア菌（Corynebacterium diphtheriae）	ジフテリア毒素を産生	微生物,陽性菌,桿菌
+微生物学::02 グラム陽性菌	リステリア属の代表菌は？	リステリア・モノサイトゲネス	妊婦・新生児・高齢者の髄膜炎	微生物,陽性菌,桿菌
+微生物学::02 グラム陽性菌	ラクトバチルス属の代表菌は？	乳酸桿菌	腟内常在菌	微生物,陽性菌,桿菌
+微生物学::02 グラム陽性菌	グラム陽性の分岐状桿菌に含まれる菌属は？	アクチノマイセス属・ノカルジア属	放線菌様に分岐する	微生物,陽性菌,分類
+微生物学::02 グラム陽性菌	アクチノマイセス属の代表菌は？	イスラエリー菌（Actinomyces israelii）	放線菌症、嫌気性	微生物,陽性菌,桿菌
+微生物学::02 グラム陽性菌	ノカルジア属の代表菌は？	アステロイデス菌（Nocardia asteroides）	好気性、部分抗酸性	微生物,陽性菌,桿菌
+微生物学::02 グラム陽性菌	グラム陽性菌の分類を大きく 4 つに分けよ	球菌／芽胞形成桿菌／無芽胞桿菌／分岐状桿菌	この枠組みで菌属を覚える	微生物,陽性菌,まとめ,頻出
+微生物学::02 グラム陽性菌	芽胞を形成する菌といえば？	バシラス属（炭疽菌・セレウス菌）とクロストリジウム属（破傷風菌・ボツリヌス菌・ウェルシュ菌・ディフィシル菌）	いずれもグラム陽性桿菌。消毒に抵抗	微生物,陽性菌,まとめ,頻出
+微生物学::03 グラム陰性菌	グラム陰性の球菌に含まれる菌属は？	ナイセリア属・モラクセラ属	グラム陰性双球菌	微生物,陰性菌,分類
+微生物学::03 グラム陰性菌	ナイセリア属（Neisseria）の代表菌は？	髄膜炎菌・淋菌	グラム陰性双球菌	微生物,陰性菌,球菌,頻出
+微生物学::03 グラム陰性菌	モラクセラ属の代表菌は？	カタラーリス菌（Moraxella catarrhalis）	気道感染	微生物,陰性菌,球菌
+微生物学::03 グラム陰性菌	腸内細菌科に含まれる菌属を挙げよ	エシェリキア属・クレブシエラ属・サルモネラ属・シゲラ属・プロテウス属・エルシニア属	通性嫌気性のグラム陰性桿菌	微生物,陰性菌,分類,頻出
+微生物学::03 グラム陰性菌	エシェリキア属の代表菌は？	大腸菌（Escherichia coli）	腸管出血性大腸菌 O157 など	微生物,陰性菌,腸内細菌
+微生物学::03 グラム陰性菌	クレブシエラ属の代表菌は？	肺炎桿菌（Klebsiella pneumoniae）	莢膜をもつ	微生物,陰性菌,腸内細菌
+微生物学::03 グラム陰性菌	サルモネラ属の代表菌は？	腸チフス菌・エンテリティディス菌	食中毒・腸チフス	微生物,陰性菌,腸内細菌
+微生物学::03 グラム陰性菌	シゲラ属の代表菌は？	赤痢菌（Shigella）	志賀毒素	微生物,陰性菌,腸内細菌
+微生物学::03 グラム陰性菌	プロテウス属の代表菌は？	ミラビリス菌（Proteus mirabilis）	ウレアーゼ産生、尿路結石	微生物,陰性菌,腸内細菌
+微生物学::03 グラム陰性菌	エルシニア属の代表菌は？	ペスト菌・エンテロコリチカ菌	ペストは人獣共通感染症	微生物,陰性菌,腸内細菌
+微生物学::03 グラム陰性菌	非発酵桿菌に含まれる菌属を 3 つ挙げよ	シュードモナス属・アシネトバクター属・ステノトロフォモナス属	ブドウ糖を発酵しない。日和見感染・多剤耐性	微生物,陰性菌,分類,頻出
+微生物学::03 グラム陰性菌	シュードモナス属の代表菌は？	緑膿菌（Pseudomonas aeruginosa）	日和見感染、多剤耐性	微生物,陰性菌,非発酵
+微生物学::03 グラム陰性菌	アシネトバクター属の代表菌は？	バウマニ菌（Acinetobacter baumannii）	院内感染、多剤耐性	微生物,陰性菌,非発酵
+微生物学::03 グラム陰性菌	ステノトロフォモナス属の代表菌は？	マルトフィリア菌（Stenotrophomonas maltophilia）	ST 合剤が第一選択	微生物,陰性菌,非発酵
+微生物学::03 グラム陰性菌	小型桿菌・球桿菌に分類されるグラム陰性菌の菌属を挙げよ	ヘモフィルス属・ボルデテラ属・ブルセラ属・パスツレラ属・レジオネラ属	発育に特殊な条件が必要なものが多い	微生物,陰性菌,分類
+微生物学::03 グラム陰性菌	ヘモフィルス属の代表菌は？	インフルエンザ菌（Haemophilus influenzae）	発育に X 因子・V 因子が必要	微生物,陰性菌,小型桿菌,頻出
+微生物学::03 グラム陰性菌	ボルデテラ属の代表菌は？	百日咳菌（Bordetella pertussis）	—	微生物,陰性菌,小型桿菌
+微生物学::03 グラム陰性菌	ブルセラ属の代表菌は？	ブルセラ菌（Brucella）	波状熱、人獣共通感染症	微生物,陰性菌,小型桿菌
+微生物学::03 グラム陰性菌	パスツレラ属の代表菌は？	多殺菌（Pasteurella multocida）	イヌ・ネコ咬傷	微生物,陰性菌,小型桿菌
+微生物学::03 グラム陰性菌	レジオネラ属の代表菌は？	ニューモフィラ菌（Legionella pneumophila）	冷却塔・給湯設備、細胞内寄生	微生物,陰性菌,小型桿菌,頻出
+微生物学::03 グラム陰性菌	湾曲・らせん状桿菌に含まれる菌属を 3 つ挙げよ	ビブリオ属・カンピロバクター属・ヘリコバクター属	形態で覚える	微生物,陰性菌,分類,頻出
+微生物学::03 グラム陰性菌	ビブリオ属の代表菌は？	コレラ菌・腸炎ビブリオ	コンマ状	微生物,陰性菌,らせん状
+微生物学::03 グラム陰性菌	カンピロバクター属の代表菌は？	ジェジュニ菌（Campylobacter jejuni）	鶏肉、Guillain-Barré 症候群の先行感染	微生物,陰性菌,らせん状,頻出
+微生物学::03 グラム陰性菌	ヘリコバクター属の代表菌は？	ピロリ菌（Helicobacter pylori）	ウレアーゼ産生、胃潰瘍・胃癌	微生物,陰性菌,らせん状,頻出
+微生物学::03 グラム陰性菌	嫌気性のグラム陰性桿菌の菌属を 3 つ挙げよ	バクテロイデス属・プレボテラ属・フソバクテリウム属	腸管・口腔の常在菌	微生物,陰性菌,分類
+微生物学::03 グラム陰性菌	バクテロイデス属の代表菌は？	フラジリス菌（Bacteroides fragilis）	腹腔内感染	微生物,陰性菌,嫌気性
+微生物学::03 グラム陰性菌	プレボテラ属とフソバクテリウム属の代表菌は？	プレボテラ菌／ネクロフォルム菌（Fusobacterium necrophorum）	口腔内嫌気性菌	微生物,陰性菌,嫌気性
+微生物学::03 グラム陰性菌	グラム陰性菌の分類を大きく 6 つに分けよ	球菌／腸内細菌／非発酵桿菌／小型桿菌・球桿菌／湾曲・らせん状桿菌／嫌気性桿菌	この枠組みで菌属を覚える	微生物,陰性菌,まとめ,頻出
+微生物学::03 グラム陰性菌	ウレアーゼを産生する代表的なグラム陰性菌は？	ヘリコバクター・ピロリ、プロテウス・ミラビリス	尿素を分解しアンモニアを産生	微生物,陰性菌,まとめ,頻出
+生化学::01 アミノ酸	グリシン（Gly）の特徴をまとめよ	非極性・最小のアミノ酸（R＝H）、唯一不斉炭素をもたない／糖原性／プリン塩基・ヘム・クレアチン・グルタチオンの材料／コラーゲンに豊富、脊髄・脳幹の抑制性神経伝達物質	非ケトーシス型高グリシン血症	アミノ酸,個別,Gly
+生化学::01 アミノ酸	アラニン（Ala）の特徴をまとめよ	非極性（R＝CH3）／糖原性／ピルビン酸と相互変換／グルコース-アラニン回路で筋から肝へ窒素と炭素を運ぶ	ALT が触媒する	アミノ酸,個別,Ala
+生化学::01 アミノ酸	バリン（Val）の特徴をまとめよ	非極性・分岐鎖アミノ酸（BCAA）／必須アミノ酸／糖原性（スクシニルCoA へ）／筋のエネルギー代謝	メープルシロップ尿症（MSUD）	アミノ酸,個別,Val
+生化学::01 アミノ酸	ロイシン（Leu）の特徴をまとめよ	非極性・分岐鎖アミノ酸（BCAA）／必須アミノ酸／純粋なケト原性（アセチルCoA・アセト酢酸へ）／mTOR を介してタンパク合成を促進	リシンとともに「ケト原性のみ」の 2 つ	アミノ酸,個別,Leu,頻出
+生化学::01 アミノ酸	イソロイシン（Ile）の特徴をまとめよ	非極性・分岐鎖アミノ酸（BCAA）／必須アミノ酸／糖原性＋ケト原性の両方／不斉炭素を 2 つもつ	MSUD	アミノ酸,個別,Ile
+生化学::01 アミノ酸	プロリン（Pro）の特徴をまとめよ	非極性・環状アミノ酸（側鎖がα-アミノ基と環を作る）／糖原性（グルタミン酸へ）／コラーゲンに豊富、βターンを作りαヘリックスを壊す	ヒドロキシプロリン化にビタミンC が必要	アミノ酸,個別,Pro,頻出
+生化学::01 アミノ酸	メチオニン（Met）の特徴をまとめよ	非極性・含硫アミノ酸（チオエーテル -S-）／必須アミノ酸／糖原性／SAM（S-アデノシルメチオニン）としてメチル基供与体／タンパク翻訳の開始アミノ酸	ホモシステイン → システインの上流	アミノ酸,個別,Met,頻出
+生化学::01 アミノ酸	フェニルアラニン（Phe）の特徴をまとめよ	非極性・芳香族アミノ酸（ベンゼン環）／必須アミノ酸／糖原性＋ケト原性／チロシンに水酸化され、カテコールアミン・メラニン・甲状腺ホルモンの上流となる	PKU では Phe↑、Tyr が条件付き必須に	アミノ酸,個別,Phe,頻出
+生化学::01 アミノ酸	トリプトファン（Trp）の特徴をまとめよ	非極性・芳香族アミノ酸（インドール環、最も大きい）／必須アミノ酸／糖原性＋ケト原性／セロトニン・メラトニン・ナイアシン（ビタミンB3）の前駆体	Hartnup 病、カルチノイド症候群	アミノ酸,個別,Trp,頻出
+生化学::01 アミノ酸	チロシン（Tyr）の特徴をまとめよ	極性・非荷電の芳香族アミノ酸（フェノール性 -OH）／条件付き必須（Phe 不足・PKU で必須になる）／糖原性＋ケト原性／DOPA → ドパミン → ノルアドレナリン → アドレナリン、メラニン、T3/T4 の前駆体	白皮症、チロシン血症	アミノ酸,個別,Tyr,頻出
+生化学::01 アミノ酸	セリン（Ser）の特徴をまとめよ	極性・非荷電（-CH2OH）／糖原性／グリシンや一炭素単位（THF）の供給、リン脂質の材料／リン酸化を受ける残基	Ser・Thr・Tyr がリン酸化部位	アミノ酸,個別,Ser
+生化学::01 アミノ酸	トレオニン（Thr）の特徴をまとめよ	極性・非荷電（-CH(OH)-CH3）／必須アミノ酸／糖原性＋ケト原性／リン酸化を受ける残基	セリンに CH3 が付いた構造	アミノ酸,個別,Thr
+生化学::01 アミノ酸	システイン（Cys）の特徴をまとめよ	極性・非荷電の含硫アミノ酸（チオール -SH）／条件付き必須（Met 不足時）／糖原性／ジスルフィド結合（S-S）でタンパク立体構造を安定化／グルタチオン・タウリン・CoA の材料	シスチン尿症	アミノ酸,個別,Cys,頻出
+生化学::01 アミノ酸	アスパラギン（Asn）の特徴をまとめよ	極性・非荷電の酸アミド型（アスパラギン酸のアミド -CONH2）／糖原性／N 結合型糖鎖修飾の中心残基	急性リンパ性白血病で L-アスパラギナーゼを使う	アミノ酸,個別,Asn
+生化学::01 アミノ酸	グルタミン（Gln）の特徴をまとめよ	極性・非荷電の酸アミド型（グルタミン酸のアミド）／条件付き必須（重症・侵襲時）／糖原性／血中の窒素運搬体、腎での酸排泄、ヌクレオチド合成の窒素源	血中で最も多い遊離アミノ酸	アミノ酸,個別,Gln,頻出
+生化学::01 アミノ酸	アスパラギン酸（Asp）の特徴をまとめよ	極性・酸性（側鎖に -COO−、生理 pH で負電荷）／糖原性／オキサロ酢酸と相互変換、ピリミジン合成、尿素回路に窒素を供給	Asn との違いは「電荷をもつ」こと	アミノ酸,個別,Asp,頻出
+生化学::01 アミノ酸	グルタミン酸（Glu）の特徴をまとめよ	極性・酸性（側鎖に -COO−、生理 pH で負電荷）／糖原性／α-ケトグルタル酸と相互変換、アミノ基転移の中心／GABA・グルタミン・グルタチオンの前駆体／主要な興奮性神経伝達物質	GABA は Glu の脱炭酸で生成	アミノ酸,個別,Glu,頻出
+生化学::01 アミノ酸	リシン（Lys）の特徴をまとめよ	極性・塩基性（末端ε-アミノ基、生理 pH で正電荷）／必須アミノ酸／純粋なケト原性／ヒストン修飾（アセチル化・メチル化）、コラーゲンの架橋、カルニチン合成	ロイシンとともに「ケト原性のみ」	アミノ酸,個別,Lys,頻出
+生化学::01 アミノ酸	アルギニン（Arg）の特徴をまとめよ	極性・塩基性（グアニジノ基、生理 pH で正電荷）／条件付き必須（小児・成長期・侵襲時）／糖原性／NO・尿素・オルニチン・クレアチンの前駆体	尿素回路の最終段階（アルギナーゼ）	アミノ酸,個別,Arg,頻出
+生化学::01 アミノ酸	ヒスチジン（His）の特徴をまとめよ	極性・弱塩基性（イミダゾール環、pKa が生理的 pH に近い）／必須アミノ酸／糖原性／脱炭酸されてヒスタミンになる／緩衝作用（ヘモグロビンの酸塩基調節）	生理 pH では多くが非荷電、一部が正電荷	アミノ酸,個別,His,頻出
+生化学::01 アミノ酸	必須アミノ酸 9 種を挙げよ	ヒスチジン・イソロイシン・ロイシン・リシン・メチオニン・フェニルアラニン・トレオニン・トリプトファン・バリン（His, Ile, Leu, Lys, Met, Phe, Thr, Trp, Val）	成人で 9 種	アミノ酸,分類,頻出
+生化学::01 アミノ酸	条件付き必須アミノ酸とその条件は？	チロシン（Phe 不足・PKU）、システイン（Met 不足）、アルギニン（小児・成長期・侵襲時）、グルタミン（重症・侵襲時）、グリシン・プロリン（特定の状態）	状況次第で必須になる	アミノ酸,分類
+生化学::01 アミノ酸	分岐鎖アミノ酸（BCAA）3 種は？	バリン・ロイシン・イソロイシン（Val, Leu, Ile）	肝外組織（特に筋）で代謝される。MSUD の原因アミノ酸	アミノ酸,分類,頻出
+生化学::01 アミノ酸	芳香族アミノ酸 3 種は？	フェニルアラニン・チロシン・トリプトファン（Phe, Tyr, Trp）	Phe → Tyr、Trp → セロトニン/ナイアシン	アミノ酸,分類,頻出
+生化学::01 アミノ酸	含硫アミノ酸 2 種は？	メチオニン・システイン（Met, Cys）	Met → SAM、Cys → S-S 結合・グルタチオン	アミノ酸,分類,頻出
+生化学::01 アミノ酸	酸性（負電荷）アミノ酸 2 種は？	アスパラギン酸・グルタミン酸（Asp, Glu）	生理 pH ≈ 7.4 で側鎖が -COO− となり負電荷	アミノ酸,分類,頻出
+生化学::01 アミノ酸	塩基性アミノ酸 3 種と、それぞれの生理 pH での電荷は？	リシン・アルギニン（正電荷）、ヒスチジン（多くは非荷電、一部が正電荷）	His は pKa が生理的 pH に近い	アミノ酸,分類,頻出
+生化学::01 アミノ酸	極性だが電荷をもたない（中性）アミノ酸 6 種は？	セリン・トレオニン・アスパラギン・グルタミン・チロシン・システイン（Ser, Thr, Asn, Gln, Tyr, Cys）	-OH／酸アミド／-SH をもち水と相互作用するが、側鎖の正味電荷は 0	アミノ酸,分類,頻出
+生化学::01 アミノ酸	非極性（疎水性）アミノ酸 9 種は？	グリシン・アラニン・バリン・ロイシン・イソロイシン・メチオニン・プロリン・フェニルアラニン・トリプトファン	側鎖が疎水性で、タンパク質の内部に位置しやすい	アミノ酸,分類,頻出
+生化学::01 アミノ酸	アミノ酸の分類で最も間違えやすい点は？	「極性 ≠ 荷電」。Ser・Thr・Asn・Gln・Tyr・Cys は極性だが生理 pH で正味電荷は 0	判断の順序は ① 側鎖が極性か → ② 生理 pH での電荷	アミノ酸,分類,頻出
+生化学::01 アミノ酸	ケト原性のみのアミノ酸は？	ロイシンとリシン（Leu, Lys）の 2 種のみ	最頻出。「Leu ＋ Lys ＝ ケト原性のみ」	アミノ酸,分類,頻出
+生化学::01 アミノ酸	糖原性かつケト原性のアミノ酸 5 種は？	イソロイシン・フェニルアラニン・チロシン・トリプトファン・トレオニン（Ile, Phe, Tyr, Trp, Thr）	これと Leu/Lys 以外は糖原性	アミノ酸,分類,頻出
+生化学::01 アミノ酸	リン酸化を受けるアミノ酸残基は？	セリン・トレオニン・チロシン（いずれも側鎖に -OH をもつ）	キナーゼの標的	アミノ酸,分類,頻出
+生化学::01 アミノ酸	不斉炭素（キラル中心）をもたない唯一のアミノ酸は？	グリシン（R＝H のため）	最小のアミノ酸	アミノ酸,分類,頻出
+生化学::01 アミノ酸	αヘリックスを壊し、βターンを作りやすいアミノ酸は？	プロリン（環状構造で剛性が高く、主鎖の水素結合ができない）	コラーゲンに豊富	アミノ酸,構造,頻出
+生化学::01 アミノ酸	ジスルフィド結合（S-S）を作るアミノ酸は？	システイン（-SH が 2 つ酸化されてシスチンになる）	タンパク質の三次構造を安定化	アミノ酸,構造,頻出
+生化学::01 アミノ酸	フェニルアラニン・チロシンから作られる生理活性物質を挙げよ	DOPA → ドパミン → ノルアドレナリン → アドレナリン／メラニン／甲状腺ホルモン（T3・T4）	Phe → Tyr → これらすべて	アミノ酸,誘導体,頻出
+生化学::01 アミノ酸	トリプトファンから作られる物質を挙げよ	セロトニン（5-HT）→ メラトニン、およびナイアシン（ビタミンB3）	Hartnup 病でペラグラ様症状	アミノ酸,誘導体,頻出
+生化学::01 アミノ酸	ヒスチジンから作られる物質は？	ヒスタミン（脱炭酸により生成）	アレルギー・胃酸分泌	アミノ酸,誘導体,頻出
+生化学::01 アミノ酸	グルタミン酸から作られる物質を挙げよ	GABA（脱炭酸）、α-ケトグルタル酸、グルタミン、グルタチオン	GABA は主要な抑制性神経伝達物質	アミノ酸,誘導体,頻出
+生化学::01 アミノ酸	アルギニンから作られる物質を挙げよ	NO（一酸化窒素）、尿素、オルニチン、クレアチン	NO 合成酵素（NOS）による	アミノ酸,誘導体,頻出
+生化学::01 アミノ酸	メチオニンから作られる主要な化合物とその役割は？	SAM（S-アデノシルメチオニン）＝生体内の主要なメチル基供与体	SAM → ホモシステイン → システイン	アミノ酸,誘導体,頻出
+生化学::01 アミノ酸	システインから作られる物質を挙げよ	グルタチオン（GSH）、タウリン、CoA などの含硫化合物	抗酸化の中心	アミノ酸,誘導体
+生化学::01 アミノ酸	グリシンから作られる物質を挙げよ	プリン塩基、ヘム（ポルフィリン）、クレアチン、グルタチオン、抱合胆汁酸	ヘム合成の出発材料（＋スクシニルCoA）	アミノ酸,誘導体,頻出
+生化学::01 アミノ酸	主要な興奮性・抑制性神経伝達物質とその由来アミノ酸は？	興奮性：グルタミン酸／抑制性：GABA（グルタミン酸由来）、グリシン（脊髄・脳幹）	グリシンは脊髄の抑制性伝達物質	アミノ酸,誘導体,頻出
+生化学::01 アミノ酸	アミノ酸疾患：フェニルケトン尿症（PKU）の生化学変化と特徴は？	フェニルアラニン水酸化酵素（または BH4）の異常 → 血中 Phe↑、Tyr 相対的↓／知的障害・けいれん・湿疹・色素低下・カビ様（ネズミ尿様）体臭／低フェニルアラニン食	Phe が Tyr になれない	アミノ酸,疾患,頻出
+生化学::01 アミノ酸	アミノ酸疾患：メープルシロップ尿症（MSUD）の生化学変化は？	分岐鎖α-ケト酸脱水素酵素の欠損 → BCAA（Leu・Ile・Val）と対応するα-ケト酸が蓄積／神経症状・代謝性アシドーシス・メープルシロップ様尿臭	BCAA 三兄弟	アミノ酸,疾患,頻出
+生化学::01 アミノ酸	アミノ酸疾患：ホモシスチン尿症の生化学変化と特徴的所見は？	多くは CBS 欠損 → ホモシステイン↑、メチオニン↑、システイン↓／水晶体の下方脱臼・血栓症・Marfan 様体型	ホモシステインが血管を傷害	アミノ酸,疾患,頻出
+生化学::01 アミノ酸	アミノ酸疾患：白皮症（アルビニズム）の機序は？	チロシナーゼの異常 → メラニン生成↓／皮膚・毛髪・虹彩の色素減少、羞明	Tyr → メラニンの経路が阻害	アミノ酸,疾患
+生化学::01 アミノ酸	アミノ酸疾患：チロシン血症 I 型の欠損酵素と特徴は？	フマリルアセト酢酸ヒドロラーゼ（FAH）欠損 → サクシニルアセトン↑／肝腎障害／治療：ニチシノン（Nitisinone）	肝細胞癌のリスク	アミノ酸,疾患
+生化学::01 アミノ酸	アミノ酸疾患：シスチン尿症の機序と覚え方は？	腎尿細管・腸の二塩基性アミノ酸トランスポーター異常／尿中に COLA（Cystine, Ornithine, Lysine, Arginine）が増加／反復する尿路結石、六角形結晶	覚え方は「COLA」	アミノ酸,疾患,頻出
+生化学::01 アミノ酸	アミノ酸疾患：Hartnup 病の機序と症状は？	中性アミノ酸（特にトリプトファン）のトランスポーター異常 → Trp の吸収・再吸収↓／ペラグラ様皮膚炎・小脳失調	Trp → ナイアシン合成が減る	アミノ酸,疾患,頻出
+生化学::01 アミノ酸	アミノ酸疾患：非ケトーシス型高グリシン血症の機序と症状は？	グリシン開裂系（glycine cleavage system）の欠損 → グリシン↑／新生児期の嗜眠・けいれん・無呼吸／ケトーシスを伴わない	名前どおり「ケトーシスなし」	アミノ酸,疾患
+生化学::01 アミノ酸	アミノ酸疾患：アルギニン血症の欠損酵素と症状は？	アルギナーゼ（尿素回路の最終段階）の欠損 → アルギニン↑、高アンモニア血症／痙性麻痺・発達異常	尿素回路の最後の酵素	アミノ酸,疾患
+生化学::02 糖代謝	解糖系（Glycolysis）が起こる細胞内の場所と主な臓器は？	細胞質／全身の組織（すべての細胞で起こる）	酸素がなくても進む	糖代謝,解糖系
+生化学::02 糖代謝	解糖系の目的と律速酵素は？	目的：ATP 産生（エネルギー供給）　律速酵素：PFK-1（ホスホフルクトキナーゼ-1）	最重要の律速酵素	糖代謝,解糖系,頻出
+生化学::02 糖代謝	解糖系の ATP 収支と産物は？	正味 ATP 2分子 ＋ NADH 2分子　最終産物：ピルビン酸	嫌気下では乳酸へ	糖代謝,解糖系
+生化学::02 糖代謝	解糖系を促進する因子と抑制する因子は？	促進：インスリン　抑制：グルカゴン	血糖を下げる方向＝解糖系	糖代謝,解糖系,ホルモン
+生化学::02 糖代謝	糖新生（Gluconeogenesis）が起こる場所と主な臓器は？	細胞質＋ミトコンドリア／肝臓・腎臓	肝腎だけが血糖を作れる	糖代謝,糖新生
+生化学::02 糖代謝	糖新生の目的と律速酵素は？	目的：血糖維持のためにグルコースを合成　律速酵素：FBPase-1（フルクトース1,6-ビスホスファターゼ）	解糖系の PFK-1 と逆の関係	糖代謝,糖新生,頻出
+生化学::02 糖代謝	糖新生のエネルギー収支は？	ATP 4分子 ＋ GTP 2分子を消費（合計 6 高エネルギーリン酸を消費）	作るのにコストがかかる	糖代謝,糖新生
+生化学::02 糖代謝	糖新生を促進する因子と抑制する因子は？	促進：グルカゴン、コルチゾール　抑制：インスリン	空腹時に働く	糖代謝,糖新生,ホルモン
+生化学::02 糖代謝	グリコーゲン合成が起こる場所と主な臓器は？	細胞質／肝臓・骨格筋	肝は血糖用、筋は自分用	糖代謝,グリコーゲン
+生化学::02 糖代謝	グリコーゲン合成の律速酵素と消費するヌクレオチドは？	律速酵素：グリコーゲンシンターゼ　UTP を消費（UDP-グルコースを経由）	促進：インスリン、抑制：グルカゴン	糖代謝,グリコーゲン,頻出
+生化学::02 糖代謝	グリコーゲン分解が起こる場所と律速酵素は？	細胞質（肝ではリソソームも関与）／律速酵素：グリコーゲンホスホリラーゼ	促進：グルカゴン・アドレナリン、抑制：インスリン	糖代謝,グリコーゲン,頻出
+生化学::02 糖代謝	グリコーゲン分解の直接の産物は？	グルコース-1-リン酸（肝では最終的にグルコースになり血中へ）	筋には G6Pase がないので血糖にできない	糖代謝,グリコーゲン,頻出
+生化学::02 糖代謝	ペントースリン酸経路（PPP・HMP経路）が起こる場所と主な臓器は？	細胞質／肝臓・脂肪組織・副腎・赤血球など	ATP は直接産生しない	糖代謝,PPP
+生化学::02 糖代謝	ペントースリン酸経路の目的と律速酵素は？	目的：NADPH とリボース5-リン酸の産生　律速酵素：G6PD（グルコース-6-リン酸脱水素酵素）	NADPH＝還元力、リボース＝核酸材料	糖代謝,PPP,頻出
+生化学::02 糖代謝	NADPH は何に使われるか？	脂肪酸・ステロイド合成、抗酸化（グルタチオン還元）、好中球の活性酸素産生	G6PD 欠損で溶血性貧血	糖代謝,PPP
+生化学::02 糖代謝	TCA 回路（クエン酸回路）が起こる場所と律速酵素は？	ミトコンドリアマトリックス／律速酵素：イソクエン酸デヒドロゲナーゼ	ほぼすべての細胞（成熟赤血球を除く）	糖代謝,TCA,頻出
+生化学::02 糖代謝	TCA 回路 1 回転で得られる高エネルギー化合物は？	GTP 1分子、NADH 3分子、FADH2 1分子（約 10 ATP 相当）　産物：CO2	電子伝達系へ還元当量を供給	糖代謝,TCA
+生化学::02 糖代謝	TCA 回路を促進する因子と抑制する因子は？	促進：ADP・Ca2+　抑制：ATP・NADH	エネルギーが足りないと回る	糖代謝,TCA
+生化学::02 糖代謝	インスリンは解糖系・糖新生・グリコーゲン合成・グリコーゲン分解にどう働くか？	解糖系 ↑／糖新生 ↓／グリコーゲン合成 ↑／グリコーゲン分解 ↓	血糖を下げる方向にすべて働く	糖代謝,ホルモン,頻出
+生化学::02 糖代謝	グルカゴンは解糖系・糖新生・グリコーゲン合成・グリコーゲン分解にどう働くか？	解糖系 ↓／糖新生 ↑／グリコーゲン合成 ↓／グリコーゲン分解 ↑	血糖を上げる方向	糖代謝,ホルモン,頻出
+生化学::02 糖代謝	アドレナリンは解糖系・糖新生・グリコーゲン合成・グリコーゲン分解にどう働くか？	解糖系 ↓／糖新生 ↑／グリコーゲン合成 ↓／グリコーゲン分解 ↑	グルカゴンと同じ方向	糖代謝,ホルモン
+生化学::02 糖代謝	律速酵素をまとめよ：解糖系・糖新生・グリコーゲン合成・グリコーゲン分解・PPP・TCA 回路	解糖系＝PFK-1／糖新生＝FBPase-1／グリコーゲン合成＝グリコーゲンシンターゼ／グリコーゲン分解＝グリコーゲンホスホリラーゼ／PPP＝G6PD／TCA＝イソクエン酸デヒドロゲナーゼ	最頻出のまとめ	糖代謝,まとめ,頻出
+生化学::02 糖代謝	ミトコンドリアで起こる糖代謝経路はどれか？	TCA 回路（マトリックス）と、糖新生の一部（ピルビン酸カルボキシラーゼの反応）	解糖系・グリコーゲン代謝・PPP は細胞質	糖代謝,まとめ,頻出
+生化学::02 糖代謝	糖代謝 6 大経路を一文でまとめると？	「解糖系で供給、グリコーゲンで貯蔵、PPP で還元力、TCA で大量エネルギー」	糖新生は空腹時の血糖維持	糖代謝,まとめ
+生化学::02 糖代謝	成熟赤血球で働かない代謝経路は？	TCA 回路・電子伝達系（ミトコンドリアを持たないため）。解糖系と PPP は働く	だから乳酸を産生する	糖代謝,まとめ,頻出
+生化学::03 先天代謝異常	フェニルケトン尿症（PKU）の欠損酵素と蓄積物質は？	欠損：フェニルアラニン水酸化酵素（PAH）　蓄積：フェニルアラニン（Phe）　欠乏：チロシン（Tyr）	正常経路：Phe → Tyr	代謝異常,アミノ酸,PKU
+生化学::03 先天代謝異常	フェニルケトン尿症（PKU）の遺伝形式・症状・治療は？	AR（常染色体潜性）／知的障害・けいれん・色素低下（金髪・白い肌）・ネズミ尿様体臭／低フェニルアラニン食、BH4（テトラヒドロビオプテリン）補充	新生児マススクリーニング対象	代謝異常,アミノ酸,PKU
+生化学::03 先天代謝異常	「白い肌・金髪・ネズミ尿臭・知的障害」といえば？	フェニルケトン尿症（PKU）	Phe 蓄積、Tyr 欠乏でメラニン低下	代謝異常,キーワード
+生化学::03 先天代謝異常	メープルシロップ尿症（MSUD）の欠損酵素と蓄積物質は？	欠損：分岐鎖α-ケト酸脱水素酵素複合体（BCKDH）　蓄積：ロイシン・イソロイシン・バリン（BCAA）と各α-ケト酸	分岐鎖アミノ酸が分解できない	代謝異常,アミノ酸,MSUD
+生化学::03 先天代謝異常	メープルシロップ尿症（MSUD）の遺伝形式・症状・治療は？	AR／新生児期の哺乳不良・嘔吐・けいれん・メープルシロップ様の尿臭／分岐鎖アミノ酸制限、ビタミンB1（チアミン）	新生児マススクリーニング対象	代謝異常,アミノ酸,MSUD
+生化学::03 先天代謝異常	ホモシスチン尿症の欠損酵素と蓄積・欠乏物質は？	欠損：シスタチオニンβ合成酵素（CBS）　蓄積：ホモシステイン・メチオニン　欠乏：システイン	正常経路：メチオニン → ホモシステイン → シスタチオニン → システイン	代謝異常,アミノ酸
+生化学::03 先天代謝異常	ホモシスチン尿症の症状と治療は？	AR／水晶体脱臼（下方）・Marfan 様の骨格異常・血栓症・知的障害／ビタミンB6 大量療法、メチオニン制限、システイン補充	Marfan 症候群は水晶体が「上方」脱臼	代謝異常,アミノ酸,頻出
+生化学::03 先天代謝異常	「Marfan 様体型＋血栓症＋水晶体の下方脱臼」といえば？	ホモシスチン尿症	Marfan 症候群との鑑別が頻出	代謝異常,キーワード,頻出
+生化学::03 先天代謝異常	ガラクトース血症（GALT 欠損型）の欠損酵素と蓄積物質は？	欠損：ガラクトース-1-リン酸ウリジルトランスフェラーゼ（GALT）　蓄積：ガラクトース-1-リン酸・ガラクトース	正常経路：ガラクトース → Gal-1-P → UDP-ガラクトース	代謝異常,糖質
+生化学::03 先天代謝異常	ガラクトース血症の症状と治療は？	AR／哺乳後の嘔吐・黄疸・肝腫大・白内障・大腸菌（E. coli）敗血症／乳糖除去ミルクで完全除去	白内障は galactitol の蓄積による	代謝異常,糖質,頻出
+生化学::03 先天代謝異常	「新生児の白内障＋大腸菌敗血症＋哺乳後の嘔吐」といえば？	ガラクトース血症	乳糖（＝グルコース＋ガラクトース）を除去	代謝異常,キーワード
+生化学::03 先天代謝異常	遺伝性フルクトース不耐症の欠損酵素と蓄積物質は？	欠損：フルクトース-1-リン酸アルドラーゼ（アルドラーゼB）　蓄積：フルクトース-1-リン酸	果糖・ショ糖の摂取で低血糖・肝障害	代謝異常,糖質
+生化学::03 先天代謝異常	糖原病 I 型（von Gierke 病）の欠損酵素と蓄積物質は？	欠損：グルコース-6-ホスファターゼ（G6Pase）　蓄積：肝グリコーゲン、グルコース-6-リン酸	肝が血糖を放出できない	代謝異常,糖原病
+生化学::03 先天代謝異常	糖原病 I 型（von Gierke 病）の症状は？	AR／低血糖・肝腫大・人形様顔貌・乳酸アシドーシス・高尿酸血症・高中性脂肪血症	キーワード「低血糖＋高乳酸＋肝腫大」	代謝異常,糖原病,頻出
+生化学::03 先天代謝異常	糖原病 V 型（McArdle 病）の欠損酵素と症状は？	欠損：筋グリコーゲンホスホリラーゼ（ミオホスホリラーゼ）／運動時の筋痙攣・筋痛、ミオグロビン尿、セカンドウィンド現象	蓄積：筋グリコーゲン、運動時に ATP 産生できない	代謝異常,糖原病,頻出
+生化学::03 先天代謝異常	「運動時の筋痛・ミオグロビン尿・セカンドウィンド現象」といえば？	糖原病 V 型（McArdle 病）	肝型（I型）は低血糖、筋型（V型）は運動時症状	代謝異常,キーワード
+生化学::03 先天代謝異常	Lesch-Nyhan 症候群の欠損酵素と蓄積物質は？	欠損：HGPRT（ヒポキサンチン-グアニンホスホリボシルトランスフェラーゼ）　蓄積：尿酸	プリン体のサルベージ経路が働かない	代謝異常,プリン
+生化学::03 先天代謝異常	Lesch-Nyhan 症候群の遺伝形式・症状・治療は？	XL（X連鎖潜性）／高尿酸血症・痛風・自傷行為・不随意運動・知的障害／アロプリノール、フェニルブタゾン	キーワード「自傷行為＋高尿酸」	代謝異常,プリン,頻出
+生化学::03 先天代謝異常	尿素回路異常症（OTC 欠損症）の欠損酵素と蓄積物質は？	欠損：オルニチントランスカルバミラーゼ（OTC）　蓄積：アンモニア、オロト酸	正常経路：オルニチン＋カルバモイルリン酸 → シトルリン	代謝異常,尿素回路
+生化学::03 先天代謝異常	OTC 欠損症の遺伝形式・症状・治療は？	XL（X連鎖潜性）／新生児期の高アンモニア血症・嘔吐・意識障害・呼吸性アルカローシス／タンパク制限、安息香酸ナトリウム、アルギニン投与	キーワード「高アンモニア血症＋オロト酸増加」	代謝異常,尿素回路,頻出
+生化学::03 先天代謝異常	高アンモニア血症で「呼吸性アルカローシス」になるのはなぜか？	アンモニアが中枢の呼吸中枢を刺激して過換気になるため	尿素回路異常症の特徴的所見	代謝異常,尿素回路
+生化学::03 先天代謝異常	アルカプトン尿症の欠損酵素と蓄積物質は？	欠損：ホモゲンチジン酸オキシダーゼ（HGO）　蓄積：ホモゲンチジン酸	チロシン代謝の異常	代謝異常,アミノ酸
+生化学::03 先天代謝異常	アルカプトン尿症の症状は？	AR／尿が空気に触れて黒変（黒尿）・オクロノーシス（軟骨や結合組織の黒色沈着）・変形性関節症	キーワード「黒尿＋関節症」	代謝異常,キーワード
+生化学::03 先天代謝異常	眼皮膚白皮症（アルビニズム）の欠損酵素と欠乏物質は？	欠損：チロシナーゼ　欠乏：メラニン（メラニン前駆体からメラニンが作れない）	チロシン → メラニンの経路が障害	代謝異常,アミノ酸
+生化学::03 先天代謝異常	ミトコンドリア病（MELAS）の異常と蓄積物質は？	ミトコンドリア酵素（呼吸鎖）の異常／蓄積：乳酸・ピルビン酸	母系遺伝（ミトコンドリア DNA）	代謝異常,ミトコンドリア
+生化学::03 先天代謝異常	ゴーシェ病の欠損酵素と蓄積物質は？	欠損：グルコセレブロシダーゼ　蓄積：グルコシルセラミド（グルコセレブロシド）	ライソゾーム病。ゴーシェ細胞、肝脾腫	代謝異常,ライソゾーム
+生化学::03 先天代謝異常	メチルマロン酸血症の欠損酵素と蓄積物質は？	欠損：メチルマロニルCoA ムターゼ　蓄積：メチルマロン酸	ビタミンB12（アデノシルコバラミン）が補酵素	代謝異常,有機酸
+生化学::03 先天代謝異常	プロピオン酸血症の欠損酵素と蓄積物質は？	欠損：プロピオニルCoA カルボキシラーゼ　蓄積：プロピオン酸	ビオチンが補酵素	代謝異常,有機酸
+生化学::03 先天代謝異常	MCAD 欠損症（中鎖アシルCoA脱水素酵素欠損症）の欠損酵素と蓄積物質は？	欠損：中鎖アシルCoA デヒドロゲナーゼ（MCAD）　蓄積：中鎖脂肪酸	脂肪酸β酸化の異常。飢餓時に低ケトン性低血糖	代謝異常,脂肪酸
+生化学::03 先天代謝異常	新生児マススクリーニングで見つかる代表的な代謝異常症を挙げよ	フェニルケトン尿症・メープルシロップ尿症・ホモシスチン尿症・ガラクトース血症（＋先天性甲状腺機能低下症、先天性副腎過形成）	タンデムマス法で有機酸・脂肪酸代謝異常も	代謝異常,まとめ,頻出
+生化学::03 先天代謝異常	X 連鎖潜性（XL）で遺伝する代謝異常症は？	Lesch-Nyhan 症候群、OTC 欠損症（尿素回路異常症）	その他の多くは AR（常染色体潜性）	代謝異常,まとめ,頻出
+生化学::03 先天代謝異常	欠損酵素から疾患を答えよ：グルコース-6-ホスファターゼ	糖原病 I 型（von Gierke 病）	肝型	代謝異常,逆引き
+生化学::03 先天代謝異常	欠損酵素から疾患を答えよ：シスタチオニンβ合成酵素	ホモシスチン尿症	CBS	代謝異常,逆引き
+生化学::03 先天代謝異常	欠損酵素から疾患を答えよ：ホモゲンチジン酸オキシダーゼ	アルカプトン尿症（黒尿病）	HGO	代謝異常,逆引き
+生化学::03 先天代謝異常	欠損酵素から疾患を答えよ：HGPRT	Lesch-Nyhan 症候群	自傷行為	代謝異常,逆引き
+生化学::03 先天代謝異常	欠損酵素から疾患を答えよ：ガラクトース-1-リン酸ウリジルトランスフェラーゼ	ガラクトース血症（GALT 欠損型）	白内障・E. coli 敗血症	代謝異常,逆引き
+解剖学::01 脳神経	第Ⅰ脳神経の名称と機能は？	嗅神経（olfactory nerve）／嗅覚	特殊感覚	脳神経,総論
+解剖学::01 脳神経	嗅神経（Ⅰ）の出入口は？	出：嗅球　入：嗅上皮（鼻腔天蓋部）	篩板を貫く	脳神経,出入口
+解剖学::01 脳神経	嗅神経（Ⅰ）が障害されると？	嗅覚障害（嗅覚低下・嗅覚脱失）	頭部外傷・篩板骨折で生じる	脳神経,障害
+解剖学::01 脳神経	第Ⅱ脳神経の名称と機能は？	視神経（optic nerve）／視覚	特殊感覚	脳神経,総論
+解剖学::01 脳神経	視神経（Ⅱ）の出入口は？	出：視神経管　入：網膜（視細胞）	視神経管を通る	脳神経,出入口
+解剖学::01 脳神経	視神経（Ⅱ）が障害されると？	視力低下・視野欠損・失明	障害部位で視野異常のパターンが変わる	脳神経,障害
+解剖学::01 脳神経	第Ⅲ脳神経の名称と機能は？	動眼神経（oculomotor nerve）／眼球運動（上転・下転・内転）、上眼瞼挙上、調節、瞳孔縮小	副交感線維を含む	脳神経,総論
+解剖学::01 脳神経	動眼神経（Ⅲ）の出入口は？	出：中脳（大脳脚内側）　入：上眼窩裂	中脳から出る	脳神経,出入口
+解剖学::01 脳神経	動眼神経（Ⅲ）が支配する筋は？	上直筋・下直筋・内直筋・下斜筋 ＋ 上眼瞼挙筋・毛様体筋（＋瞳孔括約筋）	上斜筋（Ⅳ）と外直筋（Ⅵ）以外の外眼筋	脳神経,支配
+解剖学::01 脳神経	動眼神経（Ⅲ）麻痺の症状は？	眼瞼下垂・外斜視（眼球は「外下方」を向く）・散瞳・調節障害・複視	外下方偏位が特徴	脳神経,障害
+解剖学::01 脳神経	第Ⅳ脳神経の名称と機能は？	滑車神経（trochlear nerve）／眼球の下転・内転（上斜筋）	最も細く、唯一背側から出る	脳神経,総論
+解剖学::01 脳神経	滑車神経（Ⅳ）の出入口は？	出：中脳（下丘レベルの背側）　入：上眼窩裂	脳幹背側から出る唯一の脳神経	脳神経,出入口
+解剖学::01 脳神経	滑車神経（Ⅳ）が支配する筋は？	上斜筋のみ	名前と作用が逆に感じるので注意	脳神経,支配
+解剖学::01 脳神経	滑車神経（Ⅳ）麻痺の症状は？	下斜視・複視（下方視で増強）、代償性の頭部傾斜	階段を下りるときに複視が強い	脳神経,障害
+解剖学::01 脳神経	第Ⅴ脳神経の名称と機能は？	三叉神経（trigeminal nerve）／顔面の知覚（一般・痛覚・温度覚）＋ 咀嚼運動	感覚と運動の混合神経	脳神経,総論
+解剖学::01 脳神経	三叉神経（Ⅴ）の出入口は？	出：橋（側面）　入：卵円孔（三叉神経節）　※V1 上眼窩裂・V2 正円孔・V3 卵円孔	3枝それぞれ通る孔が異なる	脳神経,出入口
+解剖学::01 脳神経	三叉神経（Ⅴ）の支配領域は？	顔面の知覚（前頭部〜下顎）と咀嚼筋（咬筋・側頭筋など）	角膜反射の求心路	脳神経,支配
+解剖学::01 脳神経	三叉神経（Ⅴ）が障害されると？	顔面の知覚低下・消失、咀嚼筋の麻痺・咬合力低下、角膜反射消失	三叉神経痛も重要	脳神経,障害
+解剖学::01 脳神経	第Ⅵ脳神経の名称と機能は？	外転神経（abducens nerve）／眼球の外転（外側注視）	外直筋のみを支配	脳神経,総論
+解剖学::01 脳神経	外転神経（Ⅵ）の出入口は？	出：橋延髄移行部（橋底部）　入：上眼窩裂	頭蓋内走行が長く、頭蓋内圧亢進で麻痺しやすい	脳神経,出入口
+解剖学::01 脳神経	外転神経（Ⅵ）麻痺の症状は？	内斜視・複視（外方視で増強）	眼球が外転できない	脳神経,障害
+解剖学::01 脳神経	第Ⅶ脳神経の名称と機能は？	顔面神経（facial nerve）／表情筋の運動、味覚（舌前2/3）、涙・唾液の分泌	運動＋味覚＋副交感の混合	脳神経,総論
+解剖学::01 脳神経	顔面神経（Ⅶ）の出入口は？	出：橋延髄移行部（小脳橋角部）　入：内耳道 → 顔面神経管 → 茎乳突孔	茎乳突孔から顔面へ出る	脳神経,出入口
+解剖学::01 脳神経	顔面神経（Ⅶ）の支配領域は？	表情筋、味覚（舌前2/3）、涙腺・唾液腺（顎下腺・舌下腺）、耳介後部の知覚、アブミ骨筋	耳下腺は Ⅸ（舌咽神経）が支配	脳神経,支配
+解剖学::01 脳神経	顔面神経（Ⅶ）麻痺の症状は？	顔面神経麻痺（口角下垂・閉眼不能）、味覚障害、涙・唾液分泌低下、アブミ骨筋麻痺による聴過敏	中枢性では前額のしわ寄せが保たれる	脳神経,障害
+解剖学::01 脳神経	第Ⅷ脳神経の名称と機能は？	前庭蝸牛神経（vestibulocochlear nerve）／聴覚・平衡感覚	特殊感覚	脳神経,総論
+解剖学::01 脳神経	前庭蝸牛神経（Ⅷ）の出入口は？	出：延髄（小脳橋角部）　入：内耳道	Ⅶ と一緒に内耳道を通る	脳神経,出入口
+解剖学::01 脳神経	前庭蝸牛神経（Ⅷ）が障害されると？	難聴・耳鳴・めまい・平衡障害	聴神経腫瘍（小脳橋角部腫瘍）	脳神経,障害
+解剖学::01 脳神経	第Ⅸ脳神経の名称と機能は？	舌咽神経（glossopharyngeal nerve）／嚥下、味覚（舌後1/3）、唾液分泌（耳下腺）、血圧・化学受容	頸動脈小体・頸動脈洞	脳神経,総論
+解剖学::01 脳神経	舌咽神経（Ⅸ）の出入口は？	出：延髄（後オリーブ溝）　入：頸静脈孔	Ⅹ・Ⅺ と一緒に頸静脈孔	脳神経,出入口
+解剖学::01 脳神経	舌咽神経（Ⅸ）の支配領域は？	味覚（舌後1/3）・咽頭・耳管、耳下腺、頸動脈小体、大部分の舌咽頭筋	唾液腺のうち耳下腺のみ Ⅸ	脳神経,支配
+解剖学::01 脳神経	舌咽神経（Ⅸ）が障害されると？	嚥下障害、味覚障害（舌後1/3）、唾液分泌低下、咽頭知覚低下（咽頭反射の求心路消失）	咽頭反射：求心 Ⅸ、遠心 Ⅹ	脳神経,障害
+解剖学::01 脳神経	第Ⅹ脳神経の名称と機能は？	迷走神経（vagus nerve）／嚥下・発声、内臓機能の調節（心拍・呼吸・消化）	最も広く分布する副交感神経	脳神経,総論
+解剖学::01 脳神経	迷走神経（Ⅹ）の出入口は？	出：延髄（後オリーブ溝）　入：頸静脈孔	Ⅸ・Ⅺ と同じ孔	脳神経,出入口
+解剖学::01 脳神経	迷走神経（Ⅹ）の支配領域は？	咽頭・喉頭・心臓・肺・消化管（〜結腸左彎曲まで）、耳介・外耳道の一部	結腸左彎曲以降は骨盤内臓神経（S2–S4）	脳神経,支配
+解剖学::01 脳神経	迷走神経（Ⅹ）が障害されると？	嗄声、嚥下障害、軟口蓋麻痺（カーテン徴候）、心拍変動、消化機能低下	反回神経麻痺で嗄声	脳神経,障害
+解剖学::01 脳神経	第Ⅺ脳神経の名称と機能は？	副神経（accessory nerve）／頭部回旋・側屈、肩甲骨挙上	純運動神経	脳神経,総論
+解剖学::01 脳神経	副神経（Ⅺ）の出入口は？	出：延髄（副神経根）＋ 頸髄 C1〜C5（脊髄根）　入：頸静脈孔（頭蓋内根）／僧帽筋後縁（脊髄根）	延髄根と脊髄根がある	脳神経,出入口
+解剖学::01 脳神経	副神経（Ⅺ）が支配する筋は？	胸鎖乳突筋・僧帽筋	SCM と僧帽筋	脳神経,支配
+解剖学::01 脳神経	副神経（Ⅺ）が障害されると？	胸鎖乳突筋麻痺（顔を反対側に回せない）、僧帽筋麻痺（肩の挙上障害）	頸部郭清術の合併症	脳神経,障害
+解剖学::01 脳神経	第Ⅻ脳神経の名称と機能は？	舌下神経（hypoglossal nerve）／舌の運動（前方突出・左右運動）	純運動神経	脳神経,総論
+解剖学::01 脳神経	舌下神経（Ⅻ）の出入口は？	出：延髄（舌下神経溝＝前外側溝）　入：舌下神経管	舌下神経管を通る	脳神経,出入口
+解剖学::01 脳神経	舌下神経（Ⅻ）が支配する筋は？	舌筋群（外舌筋・内舌筋）。ただし舌骨舌筋を除く	口蓋舌筋は迷走神経支配	脳神経,支配
+解剖学::01 脳神経	舌下神経（Ⅻ）が障害されると？	舌の偏位（挺舌時に患側へ向かう）、構音障害、摂食・嚥下障害	「舌は患側に向かう」	脳神経,障害
+解剖学::01 脳神経	上眼窩裂を通る脳神経は？	Ⅲ 動眼神経・Ⅳ 滑車神経・Ⅵ 外転神経（＋ Ⅴ1 眼神経）	眼球運動 3 兄弟	脳神経,まとめ
+解剖学::01 脳神経	頸静脈孔を通る脳神経は？	Ⅸ 舌咽神経・Ⅹ 迷走神経・Ⅺ 副神経	9・10・11 セット	脳神経,まとめ
+解剖学::01 脳神経	眼球運動を司る 3 つの脳神経とその筋の覚え方は？	Ⅲ 動眼＝「内下上」（内直・下直・上直・下斜）、Ⅳ 滑車＝上斜筋（下斜視）、Ⅵ 外転＝外直筋	LR6 SO4 R3	脳神経,まとめ
+解剖学::01 脳神経	味覚に関与する脳神経とその領域は？	Ⅶ 顔面神経＝舌前 2/3、Ⅸ 舌咽神経＝舌後 1/3（Ⅹ 迷走神経＝喉頭蓋周囲）	味覚は 7・9	脳神経,まとめ
+解剖学::01 脳神経	副交感線維を含む脳神経は？	Ⅲ 動眼・Ⅶ 顔面・Ⅸ 舌咽・Ⅹ 迷走	3・7・9・10	脳神経,まとめ
+解剖学::01 脳神経	脳幹の各部から出る脳神経を整理せよ	中脳：Ⅲ・Ⅳ　橋：Ⅴ・Ⅵ・Ⅶ・Ⅷ　延髄：Ⅸ・Ⅹ・Ⅺ・Ⅻ	Ⅰ・Ⅱ は大脳由来	脳神経,まとめ
+解剖学::01 脳神経	純粋な感覚（特殊感覚）のみの脳神経は？	Ⅰ 嗅神経・Ⅱ 視神経・Ⅷ 前庭蝸牛神経	1・2・8	脳神経,まとめ
+解剖学::01 脳神経	純粋な運動のみの脳神経は？	Ⅲ・Ⅳ・Ⅵ（眼球運動）、Ⅺ 副神経、Ⅻ 舌下神経	混合は Ⅴ・Ⅶ・Ⅸ・Ⅹ	脳神経,まとめ
+解剖学::01 脳神経	唾液腺の神経支配を整理せよ	耳下腺 → Ⅸ 舌咽神経　顎下腺・舌下腺 → Ⅶ 顔面神経	耳下腺だけ Ⅸ	脳神経,まとめ
+解剖学::02 脊髄神経	脊髄神経は全部で何対あり、その内訳は？	31対：頸神経 8対・胸神経 12対・腰神経 5対・仙骨神経 5対・尾骨神経 1対	8+12+5+5+1＝31	脊髄神経,総論
+解剖学::02 脊髄神経	脊髄神経の前根と後根はそれぞれ何を伝えるか。脊髄神経節はどこにあるか？	前根＝運動（遠心性）、後根＝感覚（求心性）。脊髄神経節（後根神経節）は後根にある	Bell-Magendie の法則	脊髄神経,総論
+解剖学::02 脊髄神経	頸神経は何対で、どのように番号がつくか？	8対（C1〜C8）。頸椎は 7 個だが神経は 8 対	C1–C7 は椎骨の上、C8 は C7 椎骨の下から出る	脊髄神経,頸
+解剖学::02 脊髄神経	頸神経（C1〜C8）の支配領域は？	頸部・後頭部の一部、上肢の皮膚（肩〜手指）、横隔膜（C3〜C5）	上肢＝頸神経	脊髄神経,頸
+解剖学::02 脊髄神経	横隔膜を支配する神経とその神経根は？	横隔神経（phrenic nerve）、C3〜C5	「C3,4,5 keeps the diaphragm alive」	脊髄神経,頸,頻出
+解剖学::02 脊髄神経	C1〜C2 障害の症状は？	後頭部痛・頸部痛・頭部回旋障害	上位頸髄	脊髄神経,頸,障害
+解剖学::02 脊髄神経	C3〜C5 障害の症状は？	横隔膜麻痺 → 呼吸困難（人工呼吸器が必要になり得る）	頸髄損傷で致命的	脊髄神経,頸,障害
+解剖学::02 脊髄神経	C5 障害の症状は？	肩の外転（三角筋）低下	三角筋＝C5	脊髄神経,頸,障害
+解剖学::02 脊髄神経	C6 障害の症状は？	手関節の伸展低下	手首を反らせない	脊髄神経,頸,障害
+解剖学::02 脊髄神経	C7 障害の症状は？	肘の伸展（上腕三頭筋）低下、手関節屈曲低下	上腕三頭筋反射＝C7	脊髄神経,頸,障害
+解剖学::02 脊髄神経	C8 障害の症状は？	手指の屈曲低下・把持力低下、尺側（小指側）の感覚鈍麻	手内在筋は主に T1	脊髄神経,頸,障害
+解剖学::02 脊髄神経	胸神経は何対で、支配領域は？	12対（T1〜T12）。体幹（胸部・腹部）の皮膚、肋間筋・腹直筋、内臓（交感神経を介する）	体幹＝胸神経	脊髄神経,胸
+解剖学::02 脊髄神経	胸神経の核心機能は？	体幹の感覚、肋間筋・腹筋の運動（呼吸補助）、内臓機能の調節（交感神経）	交感神経は T1〜L2 由来	脊髄神経,胸
+解剖学::02 脊髄神経	肋間神経が障害されるとどうなるか？	肋間部痛・感覚鈍麻	帯状疱疹でも起こる	脊髄神経,胸,障害
+解剖学::02 脊髄神経	帯状疱疹の神経学的特徴は？	皮膚分節（デルマトーム）に一致した片側性の痛みと皮疹	後根神経節に潜伏した VZV の再活性化	脊髄神経,胸,障害
+解剖学::02 脊髄神経	T6 以下の高度障害では何が起こるか？	体幹の温痛覚・触覚の低下（レベルより下）、交感神経障害（発汗異常・血圧調節障害）	T6 以上の損傷で自律神経過反射	脊髄神経,胸,障害
+解剖学::02 脊髄神経	腰神経は何対で、支配領域は？	5対（L1〜L5）。下腹部・鼠径部・大腿前面〜内側の皮膚と筋群	大腿前面＝腰神経	脊髄神経,腰
+解剖学::02 脊髄神経	腰神経の核心機能は？	下肢の屈曲・内転・伸展、膝伸展（大腿四頭筋 L3〜L4）、股関節屈曲（腸腰筋 L1〜L3）	前面の運動	脊髄神経,腰
+解剖学::02 脊髄神経	膝伸展（大腿四頭筋）の主な神経根は？	L3〜L4（大腿神経）　※膝蓋腱反射も L3〜L4	反射の定番	脊髄神経,腰,頻出
+解剖学::02 脊髄神経	股関節屈曲（腸腰筋）の主な神経根は？	L1〜L3	腸腰筋	脊髄神経,腰
+解剖学::02 脊髄神経	L2〜L4 障害の症状は？	大腿前面〜内側の感覚低下	大腿神経領域	脊髄神経,腰,障害
+解剖学::02 脊髄神経	L3 障害の症状は？	膝伸展低下（歩行時につまずく）	大腿四頭筋	脊髄神経,腰,障害
+解剖学::02 脊髄神経	L4 障害の症状は？	足関節の背屈低下	前脛骨筋	脊髄神経,腰,障害
+解剖学::02 脊髄神経	L5 障害の症状は？	母趾背屈低下（長母趾伸筋）、下腿外側の感覚低下	L5 は母趾	脊髄神経,腰,障害,頻出
+解剖学::02 脊髄神経	仙骨神経は何対で、支配領域は？	5対（S1〜S5）。臀部・会陰部・大腿後面・下腿後面〜足底、骨盤内臓・排尿排便機能	後面＋骨盤内	脊髄神経,仙骨
+解剖学::02 脊髄神経	S1 障害の症状は？	アキレス腱反射低下、足関節底屈低下	S1＝アキレス腱反射	脊髄神経,仙骨,障害,頻出
+解剖学::02 脊髄神経	S2〜S4 障害の症状は？	会陰部・肛門周囲の感覚低下、膀胱直腸障害（排尿困難・尿閉・便秘/便失禁）、性機能障害	馬尾症候群	脊髄神経,仙骨,障害,頻出
+解剖学::02 脊髄神経	排尿・排便・性機能を司る中枢の神経根は？	S2〜S4（骨盤内臓神経＝副交感神経）	「S2,3,4 keeps the urine off the floor」	脊髄神経,仙骨,頻出
+解剖学::02 脊髄神経	尾骨神経は何対で、支配領域は？	1対（Co1）。尾骨周囲の皮膚、一部は肛門周囲の皮膚	尾部痛・尾骨周囲の感覚鈍麻	脊髄神経,尾骨
+解剖学::02 脊髄神経	デルマトーム（皮膚分節）の大まかな対応は？	頸神経 C2〜C8＝後頭部・上肢／胸神経 T1〜T12＝体幹／腰神経 L1〜L5＝大腿前面・下腿内側／仙骨神経 S1〜S5＝下肢後面・会陰／尾骨 Co1＝尾骨周囲	「頸＝上肢、胸＝体幹、腰＝大腿前面、仙＝下腿後面・骨盤内」	脊髄神経,まとめ,頻出
+解剖学::02 脊髄神経	反射の確認で重要な神経根は？	上肢：C5〜C8（上腕二頭筋 C5-6、腕橈骨筋 C5-6、上腕三頭筋 C7）　下肢：L2〜S2（膝蓋腱 L3-4、アキレス腱 S1）	反射レベルの定番	脊髄神経,まとめ,頻出
+解剖学::02 脊髄神経	脊髄神経が体表へ出る経路は？	椎間孔（intervertebral foramen）から出て、皮膚・筋・関節を支配する	椎間孔狭窄で根症状	脊髄神経,総論
+解剖学::02 脊髄神経	皮膚分節と筋分節をそれぞれ何というか？	皮膚分節＝デルマトーム（dermatome）、筋分節＝ミオトーム（myotome）	両方を意識して覚える	脊髄神経,総論
+解剖学::03 心臓	心臓の位置と大きさは？	縦隔の中、胸骨の後方やや左寄り（心膜内）／成人の拳大、約 12 cm × 8 cm × 6 cm、重量 約 250〜300 g	—	心臓,総論
+解剖学::03 心臓	心基底部と心尖部はどこにあるか？	心基底部：後上方、主に左心房／心尖部：前下方左寄り、第 5 肋間鎖骨中線上で触知	心尖拍動の位置が頻出	心臓,総論,頻出
+解剖学::03 心臓	心臓の 3 つの面と 3 つの縁は？	面：前面（胸肋面）・後面（横隔面）・左側面／縁：右縁・左縁・下縁（鋭縁）	—	心臓,総論
+解剖学::03 心臓	心膜の構造を述べよ	線維性心膜（強靭な外膜）＋ 漿液性心膜（壁側心膜と臓側心膜＝心外膜の 2 層）／両者の間が心膜腔	心膜腔は漿液で満たされ滑動を助ける	心臓,心膜,頻出
+解剖学::03 心臓	心膜反転はどこで起こるか？	上方：大血管の起始部で反転／下方：横隔面で反転（横隔神経や心嚢下動静脈が通過）／前方：大血管の前面で反転	—	心臓,心膜
+解剖学::03 心臓	右心房に開口する血管は？	上大静脈・下大静脈・冠静脈洞	冠静脈洞は冠静脈の大部分が合流	心臓,心腔,頻出
+解剖学::03 心臓	左心房に開口する血管は？	肺静脈（4 本）	酸素化血が戻る	心臓,心腔,頻出
+解剖学::03 心臓	右心室から出る血管と、右心室にある弁は？	肺動脈へ出る／三尖弁（入口）と肺動脈弁（出口）	—	心臓,心腔
+解剖学::03 心臓	左心室から出る血管と、左心室にある弁は？	大動脈へ出る／僧帽弁（入口）と大動脈弁（出口）。壁が最も厚い	高圧に対応するため	心臓,心腔,頻出
+解剖学::03 心臓	三尖弁の位置と尖の数は？	右心房と右心室の間、3 尖弁（右房室弁）	—	心臓,弁膜
+解剖学::03 心臓	僧帽弁の位置と尖の数は？	左心房と左心室の間、2 尖弁（前尖・後尖）＝左房室弁	2 尖なのは僧帽弁だけ	心臓,弁膜,頻出
+解剖学::03 心臓	肺動脈弁と大動脈弁の構造は？	どちらも半月弁（3 尖）／肺動脈弁：右心室と肺動脈の間、大動脈弁：左心室と大動脈の間	房室弁との違いに注意	心臓,弁膜
+解剖学::03 心臓	心壁の 3 層構造は？	心内膜（内腔を覆う内皮）・心筋層（収縮を担う）・心外膜（臓側心膜、心臓表面を覆う）	—	心臓,心壁
+解剖学::03 心臓	心壁の厚さを比較せよ	左心室 ＞ 右心室 ＞ 心房	左心室が最も厚い	心臓,心壁,頻出
+解剖学::03 心臓	心筋の性質は？	横紋筋であり、かつ不随意筋	骨格筋（横紋・随意）との違い	心臓,心壁,頻出
+解剖学::03 心臓	右冠動脈（RCA）の走行と分枝は？	右房室溝を走行し、後室間枝・後側壁枝などを分枝	洞結節・房室結節を栄養することが多い	心臓,冠動脈,頻出
+解剖学::03 心臓	左冠動脈（LCA）の走行と分枝は？	大動脈基部から起始し、前室間枝（LAD）と回旋枝（LCx）に分岐	LAD は左室前壁・中隔	心臓,冠動脈,頻出
+解剖学::03 心臓	冠静脈洞はどこに開口するか？	右心房（冠静脈の大部分が合流し、心筋の静脈血を還流する）	—	心臓,冠動脈
+解剖学::03 心臓	心臓の刺激伝導系を順に述べよ	洞結節（右心房上壁）→ 房室結節（右心房下部）→ ヒス束 → 右脚・左脚 → プルキンエ線維	リズムの形成と伝導を担う	心臓,伝導系,頻出
+解剖学::03 心臓	洞結節と房室結節はそれぞれどこにあるか？	洞結節：右心房の上壁（上大静脈開口部付近）／房室結節：右心房の下部（心房中隔下部）	どちらも右心房	心臓,伝導系,頻出
+解剖学::03 心臓	大動脈の走行を順に述べよ	左心室から起始 → 上行大動脈 → 大動脈弓 → 下行大動脈	弓部から 3 分枝が出る	心臓,大血管
+解剖学::03 心臓	肺動脈と肺静脈が運ぶ血液はどちらが酸素化されているか？	肺動脈＝静脈血（右心室から肺へ）／肺静脈＝動脈血（酸素化血、肺から左心房へ）	名前と中身が逆	心臓,大血管,頻出
+解剖学::04 肝・脾・腎・胃	肝臓の位置と大きさは？	右季肋部〜心窩部、横隔膜の直下／成人で約 1.5 kg、赤褐色・楔形	最大の実質臓器	腹部臓器,肝臓
+解剖学::04 肝・脾・腎・胃	肝臓の被膜の名称は？	グリソン鞘（線維性被膜）	門脈域を包む	腹部臓器,肝臓
+解剖学::04 肝・脾・腎・胃	肝臓の表面構造（葉の区分）は？	左右 2 葉（右葉・左葉）、下面に方形葉・尾状葉	下面に肝門	腹部臓器,肝臓
+解剖学::04 肝・脾・腎・胃	肝臓の内部構造は？	肝小葉（中心静脈を中心とする）／門脈域（グリソン鞘）	小葉の周辺に門脈域	腹部臓器,肝臓
+解剖学::04 肝・脾・腎・胃	グリソン鞘の中を走る 3 つの管は？	胆管・肝動脈・門脈（三つ組＝portal triad）	頻出	腹部臓器,肝臓,頻出
+解剖学::04 肝・脾・腎・胃	肝臓の動脈血流の特徴は？	二重血行支配：固有肝動脈（酸素）＋ 門脈（栄養、上腸間膜静脈＋脾静脈が合流）	血流の約 70% は門脈由来	腹部臓器,肝臓,頻出
+解剖学::04 肝・脾・腎・胃	肝臓からの静脈還流は？	肝静脈 → 下大静脈	肝静脈は肝内で合流	腹部臓器,肝臓
+解剖学::04 肝・脾・腎・胃	肝臓のリンパ流と神経支配は？	リンパ：肝門部リンパ節 → 腹腔動脈周囲リンパ節／神経：肝神経叢（交感：大内臓神経、副交感：迷走神経）	—	腹部臓器,肝臓
+解剖学::04 肝・脾・腎・胃	肝臓の主な機能は？	代謝・解毒・胆汁産生、血液貯蔵、免疫機能（Kupffer 細胞）	再生能力が高い	腹部臓器,肝臓
+解剖学::04 肝・脾・腎・胃	脾臓の位置と大きさは？	左季肋部（第 9〜11 肋間）、胃の後方・左横隔膜下／成人で約 150 g、暗赤色・ソラマメ状	正常では触知しない	腹部臓器,脾臓
+解剖学::04 肝・脾・腎・胃	脾臓の被膜と表面構造は？	線維性被膜（トラベキュラ＝小柱を伴う）／臓側面の中央に脾門	外傷で破裂しやすい	腹部臓器,脾臓
+解剖学::04 肝・脾・腎・胃	脾臓の内部構造は？	白髄（リンパ組織が豊富）と赤髄	白髄＝免疫、赤髄＝血液濾過	腹部臓器,脾臓,頻出
+解剖学::04 肝・脾・腎・胃	脾臓の動脈と静脈還流は？	動脈：脾動脈（腹腔動脈の枝）／静脈：脾静脈 → 門脈	脾静脈は門脈の一部	腹部臓器,脾臓,頻出
+解剖学::04 肝・脾・腎・胃	脾臓のリンパ流と神経支配は？	リンパ：脾門リンパ節 → 腹腔動脈周囲リンパ節／神経：脾神経叢（交感：大内臓神経、副交感：迷走神経）	—	腹部臓器,脾臓
+解剖学::04 肝・脾・腎・胃	脾臓の主な機能は？	血液濾過・免疫応答、血小板の貯蔵と破壊	古い赤血球の処理	腹部臓器,脾臓
+解剖学::04 肝・脾・腎・胃	腎臓の位置と大きさは？	後腹壁（T12〜L3）の腹膜外臓器／長さ約 10〜12 cm、そら豆状	右腎は肝のためやや低い	腹部臓器,腎臓,頻出
+解剖学::04 肝・脾・腎・胃	腎臓の被膜と表面構造は？	線維性被膜（脂肪被膜を伴う）／前面・後面・外側縁・内側縁、上下端（上極・下極）	内側縁に腎門	腹部臓器,腎臓
+解剖学::04 肝・脾・腎・胃	腎臓の内部構造は？	皮質・髄質・腎盂（腎盂は尿を集める通り道）	髄質は腎錐体を形成	腹部臓器,腎臓
+解剖学::04 肝・脾・腎・胃	腎臓の動脈と静脈還流の特徴は？	動脈：腎動脈（腹部大動脈から直接分岐）／静脈：腎静脈 → 下大静脈（右腎静脈は短い）	左腎静脈は大動脈の前を横切る	腹部臓器,腎臓,頻出
+解剖学::04 肝・脾・腎・胃	腎臓のリンパ流と神経支配は？	リンパ：腰リンパ節 → 大動脈周囲リンパ節／神経：腎神経叢（交感：大内臓神経。副交感＝迷走神経の関与はほとんどない）	腎は交感神経が主体	腹部臓器,腎臓
+解剖学::04 肝・脾・腎・胃	腎臓の主な機能は？	尿の生成・体液調節、電解質と酸塩基バランスの調節、内分泌（レニン、エリスロポエチン、活性型ビタミンD）	腹膜外臓器で位置が固定	腹部臓器,腎臓
+解剖学::04 肝・脾・腎・胃	胃の位置と容量は？	心窩部〜左季肋部、左季肋部〜臍上部／J 字状の袋状臓器、容量 約 1〜1.5 L	—	腹部臓器,胃
+解剖学::04 肝・脾・腎・胃	胃の被膜は？	漿膜（腹膜）。漿膜下層あり	腹膜内臓器	腹部臓器,胃
+解剖学::04 肝・脾・腎・胃	胃の表面構造（区分）は？	前壁・後壁、小弯・大弯、幽門・噴門	胃底部・胃体部・幽門部に分ける	腹部臓器,胃
+解剖学::04 肝・脾・腎・胃	胃壁の層構造は？	粘膜・粘膜下層・筋層（内斜・中輪・外縦の 3 層）・漿膜　＝ 4 層構造	筋層が 3 層なのは胃だけ	腹部臓器,胃,頻出
+解剖学::04 肝・脾・腎・胃	胃の動脈と静脈還流は？	動脈：腹腔動脈系（左・右胃動脈、胃大網動脈など）／静脈：胃静脈 → 門脈系（左胃静脈など）	食道静脈瘤の側副路	腹部臓器,胃,頻出
+解剖学::04 肝・脾・腎・胃	胃のリンパ流と神経支配は？	リンパ：小弯＝左胃動脈リンパ節、大弯＝胃大網動脈リンパ節／神経：迷走神経（副交感）、大内臓神経（交感）	胃癌のリンパ節郭清で重要	腹部臓器,胃
+解剖学::04 肝・脾・腎・胃	胃の主な機能は？	食物の貯留・攪拌・消化、内因子の分泌（ビタミンB12 吸収に必須）	内因子は壁細胞から	腹部臓器,胃,頻出
+解剖学::04 肝・脾・腎・胃	腹膜外（後腹膜）臓器はどれか（肝・脾・腎・胃のうち）？	腎臓のみ。肝臓・脾臓・胃は腹膜内臓器	腎は位置が固定される	腹部臓器,まとめ,頻出
+解剖学::04 肝・脾・腎・胃	門脈系に還流する臓器はどれか（肝・脾・腎・胃のうち）？	脾臓（脾静脈）と胃（胃静脈）。肝静脈と腎静脈は下大静脈へ	門脈圧亢進で脾腫・食道静脈瘤	腹部臓器,まとめ,頻出
+解剖学::04 肝・脾・腎・胃	腹腔動脈の主な 3 分枝は？	左胃動脈・総肝動脈・脾動脈	肝・脾・胃をまとめて栄養する	腹部臓器,まとめ,頻出
+`;
+</script>
+<script>
+/* ============================================================
+   予備試験 暗記カード — 単一ファイル Anki（SM-2 間隔反復）
+   カードデータは下の CARD_DATA に TSV 形式で埋め込まれている。
+   deck \t front \t back \t note \t tags
+   ============================================================ */
+const LS = {
+  get(k,d){ try{ const v=localStorage.getItem(k); return v==null?d:JSON.parse(v); }catch(e){ return MEM[k]!==undefined?MEM[k]:d; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){ MEM[k]=v; } }
+};
+const MEM = {};
+const KEY = { prog:'yb_prog_v1', user:'yb_usercards_v1', cfg:'yb_cfg_v1', log:'yb_log_v1', daily:'yb_daily_v1' };
+
+/* ---------- utils ---------- */
+const $ = s=>document.querySelector(s);
+const esc = s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const DAY = 86400000, MIN = 60000;
+function hash(str){ let h=0x811c9dc5; for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,0x01000193); } return (h>>>0).toString(36); }
+/* カード ID は「科目（デッキ最上位）＋表の文言」から作る。
+   → サブデッキ名を並べ替えたり 01/02… の番号を振り直しても学習進捗は失われない。 */
+function cid(d,q){ return hash(String(d||'').split('::')[0]+'|'+String(q||'')); }
+function today(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function fmtIv(days){ if(days<1) return Math.max(1,Math.round(days*24*60))+'分'; if(days<30) return Math.round(days)+'日'; if(days<365) return (days/30).toFixed(1)+'ヶ月'; return (days/365).toFixed(1)+'年'; }
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),1900); }
+
+/* ---------- parse cards ---------- */
+function parseTSV(txt){
+  const out=[];
+  txt.split(/\r?\n/).forEach(line=>{
+    if(!line.trim()||line.trim().startsWith('#')) return;
+    const p=line.split('\t');
+    if(p.length<3) return;
+    const c={ d:(p[0]||'その他').trim(), q:(p[1]||'').trim(), a:(p[2]||'').trim(), n:(p[3]||'').trim(), t:(p[4]||'').trim() };
+    if(!c.q||!c.a) return;
+    c.id=cid(c.d,c.q);
+    out.push(c);
+  });
+  return out;
+}
+let CARDS=[], BYID={};
+function rebuild(){
+  const base = parseTSV(CARD_DATA);
+  const user = LS.get(KEY.user,[]);
+  const seen = {}; CARDS=[];
+  base.concat(user).forEach(c=>{ c.id=cid(c.d,c.q); if(seen[c.id]) return; seen[c.id]=1; CARDS.push(c); });
+  BYID={}; CARDS.forEach(c=>BYID[c.id]=c);
+}
+
+/* ---------- state ---------- */
+let P = LS.get(KEY.prog,{});          // id -> {s,due,iv,ef,r,l,k,sus}
+let CFG = Object.assign({ newPerDay:20, revPerDay:200, order:'seq', theme:'dark', deck:'', flipHint:true }, LS.get(KEY.cfg,{}));
+let LOG = LS.get(KEY.log,[]);
+let DAILY = LS.get(KEY.daily,{d:today(),n:0,r:0});
+function saveP(){ LS.set(KEY.prog,P); }
+function saveCfg(){ LS.set(KEY.cfg,CFG); }
+function checkDay(){ if(DAILY.d!==today()){ DAILY={d:today(),n:0,r:0}; LS.set(KEY.daily,DAILY);} }
+function st(id){ return P[id]||{s:0,due:0,iv:0,ef:2.5,r:0,l:0,k:0}; }
+
+/* ---------- scheduling (SM-2 + learning steps) ---------- */
+const STEPS=[1,10]; // minutes
+function answer(id,g){
+  checkDay();
+  const now=Date.now(); let c=Object.assign({s:0,due:0,iv:0,ef:2.5,r:0,l:0,k:0}, P[id]||{});
+  const wasNew = c.s===0;
+  c.r++;
+  if(c.s===0||c.s===1){                    // new / learning
+    if(g===1){ c.k=0; c.due=now+STEPS[0]*MIN; c.s=1; }
+    else if(g===2){ c.due=now+6*MIN; c.s=1; }
+    else if(g===3){ if(c.k>=STEPS.length-1){ c.s=2; c.iv=1; c.due=now+DAY; } else { c.k++; c.due=now+STEPS[c.k]*MIN; c.s=1; } }
+    else { c.s=2; c.iv=4; c.due=now+4*DAY; }
+    if(wasNew) DAILY.n++;
+  } else if(c.s===2){                      // review
+    if(g===1){ c.l++; c.ef=Math.max(1.3,c.ef-0.2); c.s=3; c.k=0; c.pend=Math.max(1,c.iv*0.5); c.due=now+10*MIN; }
+    else{
+      if(g===2){ c.iv=Math.max(1,c.iv*1.2); c.ef=Math.max(1.3,c.ef-0.15); }
+      else if(g===3){ c.iv=Math.max(1,c.iv*c.ef); }
+      else { c.iv=Math.max(1,c.iv*c.ef*1.3); c.ef=Math.min(2.9,c.ef+0.15); }
+      c.iv=Math.min(c.iv,730); c.due=now+c.iv*DAY;
+    }
+    DAILY.r++;
+  } else {                                 // relearning
+    if(g===1){ c.due=now+10*MIN; }
+    else if(g===2){ c.due=now+15*MIN; }
+    else { c.s=2; c.iv=Math.max(1,c.pend||1); c.due=now+c.iv*DAY; delete c.pend; }
+    DAILY.r++;
+  }
+  P[id]=c; saveP(); LS.set(KEY.daily,DAILY);
+  LOG.push({t:now,i:id,g:g}); if(LOG.length>8000) LOG=LOG.slice(-6000); LS.set(KEY.log,LOG);
+}
+function nextIvLabel(id,g){
+  const c=Object.assign({s:0,iv:0,ef:2.5,k:0},P[id]||{});
+  if(c.s===0||c.s===1){ if(g===1) return '1分'; if(g===2) return '6分'; if(g===3) return c.k>=STEPS.length-1?'1日':'10分'; return '4日'; }
+  if(c.s===2){ if(g===1) return '10分'; if(g===2) return fmtIv(Math.max(1,c.iv*1.2)); if(g===3) return fmtIv(Math.max(1,c.iv*c.ef)); return fmtIv(Math.max(1,c.iv*c.ef*1.3)); }
+  if(g===1) return '10分'; if(g===2) return '15分'; return fmtIv(Math.max(1,c.pend||1));
+}
+
+/* ---------- decks ---------- */
+function deckList(){
+  const m={};
+  CARDS.forEach(c=>{ (m[c.d]=m[c.d]||[]).push(c); });
+  return Object.keys(m).sort().map(k=>({name:k,cards:m[k]}));
+}
+function inDeck(c,dk){ return !dk || c.d===dk || c.d.indexOf(dk+'::')===0; }
+function counts(cards){
+  const now=Date.now(); let n=0,l=0,d=0,mat=0;
+  cards.forEach(c=>{ const s=st(c.id); if(s.sus) return;
+    if(s.s===0) n++; else if(s.s===1||s.s===3){ if(s.due<=now) l++; } else if(s.due<=now) d++;
+    if(s.s===2&&s.iv>=21) mat++; });
+  return {n,l,d,mat};
+}
+
+/* ---------- queue ---------- */
+let QUEUE=[], CUR=null, SHOWN=false, SESSION={done:0,total:0}, LAST=null;
+function buildQueue(){
+  checkDay();
+  const now=Date.now(), dk=CFG.deck;
+  const pool=CARDS.filter(c=>inDeck(c,dk)&&!st(c.id).sus);
+  let rev=[],lrn=[],nw=[];
+  pool.forEach(c=>{ const s=st(c.id);
+    if(s.s===0) nw.push(c);
+    else if(s.s===1||s.s===3){ if(s.due<=now+MIN*0.5) lrn.push(c); }
+    else if(s.due<=now) rev.push(c);
+  });
+  rev.sort((a,b)=>st(a.id).due-st(b.id).due);
+  lrn.sort((a,b)=>st(a.id).due-st(b.id).due);
+  if(CFG.order==='rand'){ shuffle(nw); shuffle(rev); }
+  rev=rev.slice(0,Math.max(0,CFG.revPerDay-DAILY.r));
+  nw =nw.slice(0,Math.max(0,CFG.newPerDay-DAILY.n));
+  // interleave: 復習を主軸に、新規を等間隔で差し込む
+  const out=[...lrn]; const step = nw.length? Math.max(1,Math.floor(rev.length/(nw.length+1))||1):1;
+  let ni=0;
+  for(let i=0;i<rev.length;i++){ out.push(rev[i]); if(ni<nw.length && (i+1)%step===0) out.push(nw[ni++]); }
+  while(ni<nw.length) out.push(nw[ni++]);
+  QUEUE=out; SESSION={done:0,total:out.length};
+}
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } }
+
+/* ============================================================
+   VIEWS
+   ============================================================ */
+let VIEW='home';
+function go(v){ VIEW=v; document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.v===v)); render(); }
+function render(){ ({home:vHome,study:vStudy,browse:vBrowse,stats:vStats}[VIEW])(); }
+
+/* ---------- HOME ---------- */
+function vHome(){
+  const all=counts(CARDS.filter(c=>!st(c.id).sus));
+  const decks=deckList();
+  const groups={};
+  decks.forEach(d=>{ const top=d.name.split('::')[0]; (groups[top]=groups[top]||[]).push(d); });
+  let h=`<div class="card-panel">
+    <h2>今日の学習</h2>
+    <div class="grid4">
+      <div class="kpi"><b style="color:var(--new)">${all.n}</b><span>未学習</span></div>
+      <div class="kpi"><b style="color:var(--learn)">${all.l}</b><span>学習中</span></div>
+      <div class="kpi"><b style="color:var(--due)">${all.d}</b><span>復習期限</span></div>
+      <div class="kpi"><b>${DAILY.n+DAILY.r}</b><span>本日回答</span></div>
+    </div>
+    <div class="row" style="margin-top:13px;gap:8px">
+      <button class="btn primary sp" id="goAll">▶ すべて学習する</button>
+      <button class="btn" id="btnOrder">${CFG.order==='rand'?'🔀 ランダム':'➡ 順番'}</button>
+    </div>
+    <div style="font-size:11.5px;color:var(--muted);margin-top:9px">
+      新規上限 ${CFG.newPerDay}/日（残 ${Math.max(0,CFG.newPerDay-DAILY.n)}）　·　復習上限 ${CFG.revPerDay}/日（残 ${Math.max(0,CFG.revPerDay-DAILY.r)}）
+    </div>
+  </div>`;
+  h+=`<div style="margin-top:14px"><h2 style="padding-left:4px">デッキ（${CARDS.length} 枚）</h2>`;
+  Object.keys(groups).sort().forEach(top=>{
+    const sub=groups[top];
+    const tot=sub.reduce((s,d)=>s+d.cards.length,0);
+    const tc=counts(sub.flatMap(d=>d.cards));
+    h+=`<div class="deck" data-deck="${esc(top)}">
+      <div style="font-size:20px">📚</div>
+      <div class="nm"><b>${esc(top)}</b><span>${tot} 枚 · 習得 ${tc.mat}</span>
+        ${barHTML(sub.flatMap(d=>d.cards))}</div>
+      <div class="counts">${cChip(tc)}</div></div>`;
+    if(sub.length>1||sub[0].name!==top){
+      sub.forEach(d=>{
+        const c2=counts(d.cards);
+        h+=`<div class="deck" data-deck="${esc(d.name)}" style="margin-left:22px;padding:10px 13px">
+          <div style="font-size:15px">📄</div>
+          <div class="nm"><b style="font-size:13.5px;font-weight:600">${esc(d.name.split('::').slice(1).join('::')||d.name)}</b>
+          <span>${d.cards.length} 枚</span></div>
+          <div class="counts">${cChip(c2)}</div></div>`;
+      });
+    }
+  });
+  h+=`</div>`;
+  $('#view').innerHTML=h;
+  $('#goAll').onclick=()=>{ CFG.deck=''; saveCfg(); startStudy(); };
+  $('#btnOrder').onclick=()=>{ CFG.order=CFG.order==='rand'?'seq':'rand'; saveCfg(); vHome(); };
+  document.querySelectorAll('.deck').forEach(el=>el.onclick=()=>{ CFG.deck=el.dataset.deck; saveCfg(); startStudy(); });
+}
+function cChip(c){ return `<span class="chip new">${c.n}</span><span class="chip learn">${c.l}</span><span class="chip due">${c.d}</span>`; }
+function barHTML(cards){
+  let n=0,l=0,y=0,m=0; cards.forEach(c=>{const s=st(c.id);
+    if(s.s===0)n++; else if(s.s===1||s.s===3)l++; else if(s.iv>=21)m++; else y++; });
+  const t=Math.max(1,cards.length);
+  const w=x=>(x/t*100).toFixed(2)+'%';
+  return `<div class="bar"><i class="b-mature" style="width:${w(m)}"></i><i class="b-young" style="width:${w(y)}"></i><i class="b-learn" style="width:${w(l)}"></i><i class="b-new" style="width:${w(n)}"></i></div>`;
+}
+
+/* ---------- STUDY ---------- */
+function startStudy(){ buildQueue(); CUR=null; LAST=null; go('study'); }
+function vStudy(){
+  if(!QUEUE.length && !CUR) buildQueue();
+  if(!CUR){ CUR=QUEUE.shift()||null; SHOWN=false; }
+  const dkName = CFG.deck||'すべてのデッキ';
+  if(!CUR){
+    $('#view').innerHTML=`<div class="card-panel donebox">
+      <div class="big">🎉</div>
+      <h3 style="margin:8px 0 4px">お疲れさま！</h3>
+      <p style="color:var(--muted);font-size:13px;margin:0 0 18px">「${esc(dkName)}」の本日の学習は完了です。<br>本日の回答：${DAILY.n+DAILY.r} 回（新規 ${DAILY.n} / 復習 ${DAILY.r}）</p>
+      <div class="row" style="justify-content:center;gap:8px">
+        <button class="btn primary" id="again">もう一度チェック</button>
+        <button class="btn" id="home">ホームへ</button>
+      </div></div>`;
+    $('#again').onclick=()=>{ buildQueue(); CUR=null; vStudy(); };
+    $('#home').onclick=()=>go('home');
+    return;
+  }
+  const c=CUR, s=st(c.id);
+  const kind = s.s===0?'<span class="chip new">未学習</span>' : (s.s===1||s.s===3)?'<span class="chip learn">学習中</span>':'<span class="chip due">復習</span>';
+  const pct = SESSION.total? (SESSION.done/SESSION.total*100):0;
+  $('#view').innerHTML=`
+   <div class="studyhead"><span>${esc(dkName)}</span>${kind}<span class="sp"></span>
+     <span>残り ${QUEUE.length+1} / ${SESSION.total||1}</span></div>
+   <div class="pbar"><i style="width:${pct}%"></i></div>
+   <div class="scene"><div class="flip ${SHOWN?'flipped':''}" id="flip">
+     <div class="face front"><div class="tag">Question</div>
+       <div class="qtext">${esc(c.q)}</div>
+       <div class="hint">タップ / Space で答えを表示</div></div>
+     <div class="face back"><div class="tag">Answer</div>
+       <div class="aq">${esc(c.q)}</div>
+       <div class="atext">${esc(c.a)}</div>
+       ${c.n?`<div class="anote">💡 ${esc(c.n)}</div>`:''}
+       ${c.t?`<div class="anote" style="border:none;padding-top:6px;font-size:11.5px;opacity:.7">🏷 ${esc(c.t)}</div>`:''}
+     </div></div></div>
+   <div id="ctrl"></div>
+   <div class="row" style="margin-top:4px">
+     <button class="btn" id="sus" style="font-size:12px;padding:6px 11px">⏸ 一時停止</button>
+     <button class="btn" id="undo" style="font-size:12px;padding:6px 11px" ${LAST?'':'disabled'}>↩ 取り消し</button>
+     <span class="sp"></span>
+     <span style="font-size:11px;color:var(--muted)">EF ${s.ef.toFixed(2)} · ${s.r}回 · ${s.iv?fmtIv(s.iv):'—'}</span>
+   </div>`;
+  const ctrl=$('#ctrl');
+  if(!SHOWN){
+    ctrl.innerHTML=`<button class="showbtn" id="show">答えを見る　（Space）</button>`;
+    $('#show').onclick=doShow;
+  } else {
+    ctrl.innerHTML=`<div class="grades">
+      <button class="g1" data-g="1">もう一度<small>${nextIvLabel(c.id,1)}</small></button>
+      <button class="g2" data-g="2">難しい<small>${nextIvLabel(c.id,2)}</small></button>
+      <button class="g3" data-g="3">普通<small>${nextIvLabel(c.id,3)}</small></button>
+      <button class="g4" data-g="4">簡単<small>${nextIvLabel(c.id,4)}</small></button></div>`;
+    ctrl.querySelectorAll('button').forEach(b=>b.onclick=()=>grade(+b.dataset.g));
+  }
+  fitScene();
+  $('#flip').onclick=()=>{ if(!SHOWN) doShow(); };
+  $('#sus').onclick=()=>{ const x=Object.assign({s:0,due:0,iv:0,ef:2.5,r:0,l:0,k:0},P[c.id]||{}); x.sus=1; P[c.id]=x; saveP(); toast('このカードを一時停止しました'); CUR=null; vStudy(); };
+  $('#undo').onclick=undo;
+}
+function fitScene(){
+  const sc=document.querySelector('.scene'); if(!sc) return;
+  const f=sc.querySelector('.front'), b=sc.querySelector('.back');
+  const h=Math.max(300, f.scrollHeight+4, b.scrollHeight+4);
+  sc.style.minHeight=Math.min(h, Math.round(window.innerHeight*0.62))+'px';
+}
+function doShow(){ SHOWN=true; vStudy(); }
+function grade(g){
+  const c=CUR; const before=JSON.parse(JSON.stringify(P[c.id]||null));
+  answer(c.id,g);
+  LAST={id:c.id,before:before,card:c,dn:DAILY.n,dr:DAILY.r};
+  SESSION.done++;
+  const s=st(c.id);
+  if(s.s===1||s.s===3){ // 学習中は 10 分以内なら同一セッション内で再出題
+    if(s.due-Date.now() < 11*MIN) QUEUE.push(c);
+  }
+  CUR=null; SHOWN=false; vStudy();
+}
+function undo(){
+  if(!LAST) return;
+  if(LAST.before===null) delete P[LAST.id]; else P[LAST.id]=LAST.before;
+  saveP(); LOG.pop(); LS.set(KEY.log,LOG);
+  QUEUE=QUEUE.filter(x=>x.id!==LAST.id);
+  if(CUR) QUEUE.unshift(CUR);
+  CUR=LAST.card; SHOWN=true; SESSION.done=Math.max(0,SESSION.done-1);
+  LAST=null; toast('直前の回答を取り消しました'); vStudy();
+}
+
+/* ---------- BROWSE ---------- */
+let BQ='', BF='all', BLIMIT=120;
+function vBrowse(){
+  const decks=deckList();
+  let h=`<div class="card-panel">
+    <input id="q" placeholder="🔍 表・裏・メモ・タグを検索…" value="${esc(BQ)}">
+    <div class="row" style="margin-top:9px;gap:8px;flex-wrap:wrap">
+      <select id="dk" style="flex:2;min-width:150px"><option value="">すべてのデッキ</option>
+        ${decks.map(d=>`<option value="${esc(d.name)}" ${CFG.deck===d.name?'selected':''}>${esc(d.name)} (${d.cards.length})</option>`).join('')}</select>
+      <select id="ft" style="flex:1;min-width:110px">
+        ${[['all','状態：すべて'],['new','未学習'],['learn','学習中'],['due','期限切れ'],['mature','習得済み'],['sus','一時停止']].map(o=>`<option value="${o[0]}" ${BF===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select>
+    </div></div>`;
+  const now=Date.now();
+  const q=BQ.trim().toLowerCase();
+  let list=CARDS.filter(c=>{
+    if(CFG.deck && !inDeck(c,CFG.deck)) return false;
+    const s=st(c.id);
+    if(BF==='new'&&s.s!==0) return false;
+    if(BF==='learn'&&!(s.s===1||s.s===3)) return false;
+    if(BF==='due'&&!(s.s===2&&s.due<=now)) return false;
+    if(BF==='mature'&&!(s.s===2&&s.iv>=21)) return false;
+    if(BF==='sus'&&!s.sus) return false;
+    if(BF!=='sus'&&s.sus) return false;
+    if(q && (c.q+' '+c.a+' '+c.n+' '+c.t).toLowerCase().indexOf(q)<0) return false;
+    return true;
+  });
+  h+=`<div style="margin-top:12px;font-size:12px;color:var(--muted);padding-left:4px">${list.length} 件</div><div id="rows" style="margin-top:8px"></div>`;
+  if(list.length>BLIMIT) h+=`<button class="btn" id="more" style="width:100%;margin-top:8px">さらに表示（残り ${list.length-BLIMIT}）</button>`;
+  $('#view').innerHTML=h;
+  const rows=$('#rows');
+  rows.innerHTML=list.slice(0,BLIMIT).map(c=>{
+    const s=st(c.id);
+    const badge = s.sus?'<span class="chip">停止</span>': s.s===0?'<span class="chip new">未</span>':(s.s===1||s.s===3)?'<span class="chip learn">学</span>':(s.iv>=21?'<span class="chip due">熟</span>':'<span class="chip due">復</span>');
+    return `<div class="brow" data-id="${c.id}"><div class="q">${esc(c.q)}</div>
+      <div class="a">${esc(c.a)}${c.n?'\n💡 '+esc(c.n):''}</div>
+      <div class="meta">${badge}<span>${esc(c.d)}</span>${c.t?`<span>🏷 ${esc(c.t)}</span>`:''}${s.iv?`<span>間隔 ${fmtIv(s.iv)}</span>`:''}</div></div>`;
+  }).join('');
+  rows.querySelectorAll('.brow').forEach(el=>el.onclick=()=>el.classList.toggle('open'));
+  $('#q').oninput=e=>{ BQ=e.target.value; BLIMIT=120; clearTimeout(window._bt); window._bt=setTimeout(()=>{const p=e.target.selectionStart;vBrowse();const i=$('#q');i.focus();i.setSelectionRange(p,p);},220); };
+  $('#dk').onchange=e=>{ CFG.deck=e.target.value; saveCfg(); BLIMIT=120; vBrowse(); };
+  $('#ft').onchange=e=>{ BF=e.target.value; BLIMIT=120; vBrowse(); };
+  if($('#more')) $('#more').onclick=()=>{ BLIMIT+=200; vBrowse(); };
+}
+
+/* ---------- STATS ---------- */
+function vStats(){
+  const now=Date.now();
+  const act=CARDS.filter(c=>!st(c.id).sus);
+  const c=counts(act);
+  const mature=act.filter(x=>{const s=st(x.id);return s.s===2&&s.iv>=21;}).length;
+  const young=act.filter(x=>{const s=st(x.id);return s.s===2&&s.iv<21;}).length;
+  const learn=act.filter(x=>{const s=st(x.id);return s.s===1||s.s===3;}).length;
+  const nw=act.filter(x=>st(x.id).s===0).length;
+  // forecast 14 days
+  const fc=new Array(14).fill(0);
+  act.forEach(x=>{ const s=st(x.id); if(s.s!==2) return; const d=Math.floor((s.due-now)/DAY); if(d>=0&&d<14) fc[d]++; else if(d<0) fc[0]++; });
+  const mx=Math.max(1,...fc);
+  // 7-day activity
+  const days=[]; for(let i=6;i>=0;i--){ const d=new Date(now-i*DAY); days.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')); }
+  const dayc={}; days.forEach(d=>dayc[d]=0);
+  LOG.forEach(l=>{ const d=new Date(l.t); const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); if(k in dayc) dayc[k]++; });
+  const mx2=Math.max(1,...days.map(d=>dayc[d]));
+  const total=LOG.length, good=LOG.filter(l=>l.g>=3).length;
+  $('#view').innerHTML=`
+  <div class="grid4">
+    <div class="kpi"><b>${CARDS.length}</b><span>総カード</span></div>
+    <div class="kpi"><b style="color:var(--good)">${mature}</b><span>習得済み</span></div>
+    <div class="kpi"><b style="color:var(--due)">${c.d}</b><span>復習期限</span></div>
+    <div class="kpi"><b>${total?Math.round(good/total*100):0}%</b><span>正答率</span></div>
+  </div>
+  <div class="card-panel" style="margin-top:14px"><h2>学習の進み具合</h2>
+    ${barHTML(act)}
+    <div class="row" style="margin-top:10px;font-size:12px;gap:14px;flex-wrap:wrap">
+      <span><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--good)"></i> 習得 ${mature}</span>
+      <span><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#a3e635"></i> 定着中 ${young}</span>
+      <span><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--learn)"></i> 学習中 ${learn}</span>
+      <span><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--new)"></i> 未学習 ${nw}</span>
+    </div></div>
+  <div class="card-panel" style="margin-top:14px"><h2>今後 14 日の復習予定</h2>
+    <div class="fc">${fc.map(v=>`<div style="height:${v/mx*100}%" title="${v}枚"></div>`).join('')}</div>
+    <div class="fclabels">${fc.map((v,i)=>`<span>${i%2===0?(i===0?'今日':i+'d'):''}</span>`).join('')}</div></div>
+  <div class="card-panel" style="margin-top:14px"><h2>直近 7 日の回答数</h2>
+    <div class="fc">${days.map(d=>`<div style="height:${dayc[d]/mx2*100}%" title="${dayc[d]}回"></div>`).join('')}</div>
+    <div class="fclabels">${days.map(d=>`<span>${d.slice(5).replace('-','/')}</span>`).join('')}</div></div>`;
+}
+
+/* ---------- SETTINGS / IMPORT ---------- */
+function openSettings(){
+  const m=$('#modal');
+  m.innerHTML=`
+   <h3>設定・データ管理</h3><p class="sub">カードの追加・書き出し・進捗のバックアップ</p>
+   <div class="row" style="gap:10px;margin-bottom:12px">
+     <div style="flex:1"><label style="font-size:12px;color:var(--muted)">1日の新規上限</label><input id="np" type="number" min="0" value="${CFG.newPerDay}"></div>
+     <div style="flex:1"><label style="font-size:12px;color:var(--muted)">1日の復習上限</label><input id="rp" type="number" min="0" value="${CFG.revPerDay}"></div>
+   </div>
+   <h2 style="margin-top:16px">カードを追加 / 更新</h2>
+   <p style="font-size:12px;color:var(--muted);margin:0 0 8px">
+     TSV（タブ区切り）5列：<code>デッキ ⇥ 表 ⇥ 裏 ⇥ メモ ⇥ タグ</code><br>
+     同じ「デッキ＋表」のカードは上書きされ、学習進捗はそのまま引き継がれます。</p>
+   <textarea id="imp" rows="6" placeholder="解剖学::脳神経&#9;動眼神経が支配する筋は？&#9;上直筋・下直筋・内直筋・下斜筋…&#9;メモ&#9;脳神経"></textarea>
+   <div class="row" style="margin-top:9px;gap:8px;flex-wrap:wrap">
+     <button class="btn primary" id="doImp">＋ 取り込む</button>
+     <button class="btn" id="pickFile">📂 ファイル選択(.tsv/.txt/.json)</button>
+     <input type="file" id="file" accept=".tsv,.txt,.json,.csv" class="hide">
+   </div>
+   <h2 style="margin-top:18px">書き出し</h2>
+   <div class="row" style="gap:8px;flex-wrap:wrap">
+     <button class="btn" id="expCards">📤 全カード TSV</button>
+     <button class="btn" id="expProg">💾 進捗バックアップ</button>
+     <button class="btn" id="impProg">📥 進捗を復元</button>
+     <input type="file" id="pfile" accept=".json" class="hide">
+   </div>
+   <h2 style="margin-top:18px">リセット</h2>
+   <div class="row" style="gap:8px;flex-wrap:wrap">
+     <button class="btn" id="rsDaily">本日のカウントをリセット</button>
+     <button class="btn" id="rsUser" style="color:var(--hard)">追加カードを削除</button>
+     <button class="btn" id="rsAll" style="color:var(--again)">全進捗を消去</button>
+   </div>
+   <h2 style="margin-top:18px">このアプリについて</h2>
+   <p style="font-size:12px;color:var(--muted);margin:0">
+     バージョン <b>${APP_VERSION}</b>　·　収録 <b>${CARDS.length}</b> 枚<br>
+     ${location.protocol.indexOf('http')===0 ? '配信元：'+esc(location.origin)+'（オフライン利用可）' : 'ローカルファイルとして実行中'}
+   </p>
+   <div class="row" style="margin-top:18px"><span class="sp"></span><button class="btn primary" id="close">閉じる</button></div>`;
+  $('#mask').classList.add('on');
+  const close=()=>{ CFG.newPerDay=Math.max(0,+$('#np').value||0); CFG.revPerDay=Math.max(0,+$('#rp').value||0); saveCfg(); $('#mask').classList.remove('on'); render(); };
+  $('#close').onclick=close;
+  $('#doImp').onclick=()=>{ importText($('#imp').value); close(); };
+  $('#pickFile').onclick=()=>$('#file').click();
+  $('#file').onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ importText(r.result); close(); }; r.readAsText(f); };
+  $('#expCards').onclick=()=>dl('cards_all.tsv', CARDS.map(c=>[c.d,c.q,c.a,c.n,c.t].join('\t')).join('\n'));
+  $('#expProg').onclick=()=>dl('anki_progress_'+today()+'.json', JSON.stringify({prog:P,log:LOG,daily:DAILY,user:LS.get(KEY.user,[])}));
+  $('#impProg').onclick=()=>$('#pfile').click();
+  $('#pfile').onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader();
+    r.onload=()=>{ try{ const j=JSON.parse(r.result); if(j.prog){P=j.prog;saveP();} if(j.log){LOG=j.log;LS.set(KEY.log,LOG);} if(j.daily){DAILY=j.daily;LS.set(KEY.daily,DAILY);} if(j.user){LS.set(KEY.user,j.user);rebuild();} toast('進捗を復元しました'); close(); }catch(err){ toast('ファイルを読めませんでした'); } };
+    r.readAsText(f); };
+  $('#rsDaily').onclick=()=>{ DAILY={d:today(),n:0,r:0}; LS.set(KEY.daily,DAILY); toast('本日のカウントをリセット'); close(); };
+  $('#rsUser').onclick=()=>{ if(confirm('取り込んだ追加カードを削除しますか？（内蔵カードは残ります）')){ LS.set(KEY.user,[]); rebuild(); toast('追加カードを削除しました'); close(); } };
+  $('#rsAll').onclick=()=>{ if(confirm('すべての学習進捗を消去しますか？この操作は元に戻せません。')){ P={};LOG=[];DAILY={d:today(),n:0,r:0}; saveP();LS.set(KEY.log,LOG);LS.set(KEY.daily,DAILY); toast('進捗を消去しました'); close(); } };
+}
+function importText(txt){
+  if(!txt||!txt.trim()){ toast('内容がありません'); return; }
+  let add=[];
+  const t=txt.trim();
+  if(t[0]==='['||t[0]==='{'){
+    try{ const j=JSON.parse(t); const arr=Array.isArray(j)?j:(j.cards||[]);
+      add=arr.map(o=>({d:o.d||o.deck||'その他',q:o.q||o.front||'',a:o.a||o.back||'',n:o.n||o.note||'',t:o.t||o.tags||''})).filter(o=>o.q&&o.a);
+    }catch(e){ toast('JSON を解析できません'); return; }
+  } else {
+    let s=t; if(s.indexOf('\t')<0 && s.indexOf(',')>0) s=s.split(/\r?\n/).map(l=>l.split(',').join('\t')).join('\n');
+    add=parseTSV(s);
+  }
+  if(!add.length){ toast('有効なカードが見つかりません'); return; }
+  add.forEach(c=>c.id=cid(c.d,c.q));
+  const user=LS.get(KEY.user,[]);
+  const map={}; user.forEach(c=>map[cid(c.d,c.q)]=c);
+  let nAdd=0,nUp=0;
+  add.forEach(c=>{ if(map[c.id]) nUp++; else nAdd++; map[c.id]=c; });
+  LS.set(KEY.user,Object.values(map));
+  rebuild();
+  toast(`取り込み完了：新規 ${nAdd} 枚 / 更新 ${nUp} 枚`);
+}
+function dl(name,txt){
+  const b=new Blob([txt],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+}
+
+/* ---------- keyboard ---------- */
+document.addEventListener('keydown',e=>{
+  if(/input|textarea|select/i.test((e.target.tagName||''))) return;
+  if(VIEW!=='study') { if(e.key==='s'){go('study');} return; }
+  if(e.key===' '||e.key==='Enter'){ e.preventDefault(); if(!SHOWN&&CUR) doShow(); else if(CUR) grade(3); return; }
+  if(SHOWN&&CUR&&['1','2','3','4'].includes(e.key)){ e.preventDefault(); grade(+e.key); }
+  if(e.key==='z'&&LAST) undo();
+});
+
+/* ---------- PWA / Service Worker ---------- */
+const APP_VERSION = '2026-08-18 (363枚)';
+function initPWA(){
+  if(!('serviceWorker' in navigator)) return;
+  if(location.protocol.indexOf('http')!==0) return;   // file:// では登録しない
+  navigator.serviceWorker.register('sw.js').then(reg=>{
+    // 待機中の新バージョンがあれば知らせる
+    const notify = w => {
+      if(!w) return;
+      const bar=$('#updbar'); if(!bar) return;
+      bar.classList.add('on');
+      document.body.style.paddingTop = bar.offsetHeight+'px';   // ヘッダーに被らないよう押し下げる
+      $('#updbtn').onclick=()=>{ $('#updbtn').textContent='更新中…'; w.postMessage('skipWaiting'); };
+    };
+    if(reg.waiting) notify(reg.waiting);
+    reg.addEventListener('updatefound',()=>{
+      const w=reg.installing;
+      if(!w) return;
+      w.addEventListener('statechange',()=>{
+        if(w.state==='installed' && navigator.serviceWorker.controller) notify(reg.waiting||w);
+      });
+    });
+    // 起動時と復帰時に更新を確認
+    reg.update().catch(()=>{});
+    document.addEventListener('visibilitychange',()=>{ if(!document.hidden) reg.update().catch(()=>{}); });
+  }).catch(()=>{});
+  let reloading=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(reloading) return; reloading=true; location.reload();
+  });
+}
+
+/* ---------- boot ---------- */
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{ if(b.dataset.v==='study'&&VIEW!=='study') startStudy(); else go(b.dataset.v); });
+$('#btnSet').onclick=openSettings;
+$('#mask').onclick=e=>{ if(e.target===$('#mask')) $('#mask').classList.remove('on'); };
+$('#btnTheme').onclick=()=>{ const l=document.documentElement.classList.toggle('light'); document.documentElement.classList.toggle('dark',!l); CFG.theme=l?'light':'dark'; saveCfg(); };
+if(CFG.theme==='light'){ document.documentElement.classList.add('light'); document.documentElement.classList.remove('dark'); }
+checkDay(); rebuild(); go('home'); initPWA();
+$('#subttl').textContent = [...new Set(CARDS.map(c=>c.d.split('::')[0]))].join(' · ');
+</script>
+</body>
+</html>

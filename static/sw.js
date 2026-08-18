@@ -1,7 +1,7 @@
 /* 予備試験 暗記カード — Service Worker
    HTML は network-first（オンラインなら必ず最新版）、
    アイコン等は cache-first。オフラインでも起動できる。 */
-const VERSION = 'v-TEST-2';
+const VERSION = '__VERSION__';
 const CACHE = 'yb-' + VERSION;
 const ASSETS = ['./', './index.html', './manifest.webmanifest',
                 './icon-192.png', './icon-512.png', './icon-180.png', './icon-512-maskable.png'];

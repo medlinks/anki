@@ -1,0 +1,510 @@
+<script>
+/* ============================================================
+   予備試験 暗記カード — 単一ファイル Anki（SM-2 間隔反復）
+   カードデータは下の CARD_DATA に TSV 形式で埋め込まれている。
+   deck \t front \t back \t note \t tags
+   ============================================================ */
+const LS = {
+  get(k,d){ try{ const v=localStorage.getItem(k); return v==null?d:JSON.parse(v); }catch(e){ return MEM[k]!==undefined?MEM[k]:d; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){ MEM[k]=v; } }
+};
+const MEM = {};
+const KEY = { prog:'yb_prog_v1', user:'yb_usercards_v1', cfg:'yb_cfg_v1', log:'yb_log_v1', daily:'yb_daily_v1' };
+
+/* ---------- utils ---------- */
+const $ = s=>document.querySelector(s);
+const esc = s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const DAY = 86400000, MIN = 60000;
+function hash(str){ let h=0x811c9dc5; for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,0x01000193); } return (h>>>0).toString(36); }
+/* カード ID は「科目（デッキ最上位）＋表の文言」から作る。
+   → サブデッキ名を並べ替えたり 01/02… の番号を振り直しても学習進捗は失われない。 */
+function cid(d,q){ return hash(String(d||'').split('::')[0]+'|'+String(q||'')); }
+function today(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function fmtIv(days){ if(days<1) return Math.max(1,Math.round(days*24*60))+'分'; if(days<30) return Math.round(days)+'日'; if(days<365) return (days/30).toFixed(1)+'ヶ月'; return (days/365).toFixed(1)+'年'; }
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),1900); }
+
+/* ---------- parse cards ---------- */
+function parseTSV(txt){
+  const out=[];
+  txt.split(/\r?\n/).forEach(line=>{
+    if(!line.trim()||line.trim().startsWith('#')) return;
+    const p=line.split('\t');
+    if(p.length<3) return;
+    const c={ d:(p[0]||'その他').trim(), q:(p[1]||'').trim(), a:(p[2]||'').trim(), n:(p[3]||'').trim(), t:(p[4]||'').trim() };
+    if(!c.q||!c.a) return;
+    c.id=cid(c.d,c.q);
+    out.push(c);
+  });
+  return out;
+}
+let CARDS=[], BYID={};
+function rebuild(){
+  const base = parseTSV(CARD_DATA);
+  const user = LS.get(KEY.user,[]);
+  const seen = {}; CARDS=[];
+  base.concat(user).forEach(c=>{ c.id=cid(c.d,c.q); if(seen[c.id]) return; seen[c.id]=1; CARDS.push(c); });
+  BYID={}; CARDS.forEach(c=>BYID[c.id]=c);
+}
+
+/* ---------- state ---------- */
+let P = LS.get(KEY.prog,{});          // id -> {s,due,iv,ef,r,l,k,sus}
+let CFG = Object.assign({ newPerDay:20, revPerDay:200, order:'seq', theme:'dark', deck:'', flipHint:true }, LS.get(KEY.cfg,{}));
+let LOG = LS.get(KEY.log,[]);
+let DAILY = LS.get(KEY.daily,{d:today(),n:0,r:0});
+function saveP(){ LS.set(KEY.prog,P); }
+function saveCfg(){ LS.set(KEY.cfg,CFG); }
+function checkDay(){ if(DAILY.d!==today()){ DAILY={d:today(),n:0,r:0}; LS.set(KEY.daily,DAILY);} }
+function st(id){ return P[id]||{s:0,due:0,iv:0,ef:2.5,r:0,l:0,k:0}; }
+
+/* ---------- scheduling (SM-2 + learning steps) ---------- */
+const STEPS=[1,10]; // minutes
+function answer(id,g){
+  checkDay();
+  const now=Date.now(); let c=Object.assign({s:0,due:0,iv:0,ef:2.5,r:0,l:0,k:0}, P[id]||{});
+  const wasNew = c.s===0;
+  c.r++;
+  if(c.s===0||c.s===1){                    // new / learning
+    if(g===1){ c.k=0; c.due=now+STEPS[0]*MIN; c.s=1; }
+    else if(g===2){ c.due=now+6*MIN; c.s=1; }
+    else if(g===3){ if(c.k>=STEPS.length-1){ c.s=2; c.iv=1; c.due=now+DAY; } else { c.k++; c.due=now+STEPS[c.k]*MIN; c.s=1; } }
+    else { c.s=2; c.iv=4; c.due=now+4*DAY; }
+    if(wasNew) DAILY.n++;
+  } else if(c.s===2){                      // review
+    if(g===1){ c.l++; c.ef=Math.max(1.3,c.ef-0.2); c.s=3; c.k=0; c.pend=Math.max(1,c.iv*0.5); c.due=now+10*MIN; }
+    else{
+      if(g===2){ c.iv=Math.max(1,c.iv*1.2); c.ef=Math.max(1.3,c.ef-0.15); }
+      else if(g===3){ c.iv=Math.max(1,c.iv*c.ef); }
+      else { c.iv=Math.max(1,c.iv*c.ef*1.3); c.ef=Math.min(2.9,c.ef+0.15); }
+      c.iv=Math.min(c.iv,730); c.due=now+c.iv*DAY;
+    }
+    DAILY.r++;
+  } else {                                 // relearning
+    if(g===1){ c.due=now+10*MIN; }
+    else if(g===2){ c.due=now+15*MIN; }
+    else { c.s=2; c.iv=Math.max(1,c.pend||1); c.due=now+c.iv*DAY; delete c.pend; }
+    DAILY.r++;
+  }
+  P[id]=c; saveP(); LS.set(KEY.daily,DAILY);
+  LOG.push({t:now,i:id,g:g}); if(LOG.length>8000) LOG=LOG.slice(-6000); LS.set(KEY.log,LOG);
+}
+function nextIvLabel(id,g){
+  const c=Object.assign({s:0,iv:0,ef:2.5,k:0},P[id]||{});
+  if(c.s===0||c.s===1){ if(g===1) return '1分'; if(g===2) return '6分'; if(g===3) return c.k>=STEPS.length-1?'1日':'10分'; return '4日'; }
+  if(c.s===2){ if(g===1) return '10分'; if(g===2) return fmtIv(Math.max(1,c.iv*1.2)); if(g===3) return fmtIv(Math.max(1,c.iv*c.ef)); return fmtIv(Math.max(1,c.iv*c.ef*1.3)); }
+  if(g===1) return '10分'; if(g===2) return '15分'; return fmtIv(Math.max(1,c.pend||1));
+}
+
+/* ---------- decks ---------- */
+function deckList(){
+  const m={};
+  CARDS.forEach(c=>{ (m[c.d]=m[c.d]||[]).push(c); });
+  return Object.keys(m).sort().map(k=>({name:k,cards:m[k]}));
+}
+function inDeck(c,dk){ return !dk || c.d===dk || c.d.indexOf(dk+'::')===0; }
+function counts(cards){
+  const now=Date.now(); let n=0,l=0,d=0,mat=0;
+  cards.forEach(c=>{ const s=st(c.id); if(s.sus) return;
+    if(s.s===0) n++; else if(s.s===1||s.s===3){ if(s.due<=now) l++; } else if(s.due<=now) d++;
+    if(s.s===2&&s.iv>=21) mat++; });
+  return {n,l,d,mat};
+}
+
+/* ---------- queue ---------- */
+let QUEUE=[], CUR=null, SHOWN=false, SESSION={done:0,total:0}, LAST=null;
+function buildQueue(){
+  checkDay();
+  const now=Date.now(), dk=CFG.deck;
+  const pool=CARDS.filter(c=>inDeck(c,dk)&&!st(c.id).sus);
+  let rev=[],lrn=[],nw=[];
+  pool.forEach(c=>{ const s=st(c.id);
+    if(s.s===0) nw.push(c);
+    else if(s.s===1||s.s===3){ if(s.due<=now+MIN*0.5) lrn.push(c); }
+    else if(s.due<=now) rev.push(c);
+  });
+  rev.sort((a,b)=>st(a.id).due-st(b.id).due);
+  lrn.sort((a,b)=>st(a.id).due-st(b.id).due);
+  if(CFG.order==='rand'){ shuffle(nw); shuffle(rev); }
+  rev=rev.slice(0,Math.max(0,CFG.revPerDay-DAILY.r));
+  nw =nw.slice(0,Math.max(0,CFG.newPerDay-DAILY.n));
+  // interleave: 復習を主軸に、新規を等間隔で差し込む
+  const out=[...lrn]; const step = nw.length? Math.max(1,Math.floor(rev.length/(nw.length+1))||1):1;
+  let ni=0;
+  for(let i=0;i<rev.length;i++){ out.push(rev[i]); if(ni<nw.length && (i+1)%step===0) out.push(nw[ni++]); }
+  while(ni<nw.length) out.push(nw[ni++]);
+  QUEUE=out; SESSION={done:0,total:out.length};
+}
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } }
+
+/* ============================================================
+   VIEWS
+   ============================================================ */
+let VIEW='home';
+function go(v){ VIEW=v; document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.v===v)); render(); }
+function render(){ ({home:vHome,study:vStudy,browse:vBrowse,stats:vStats}[VIEW])(); }
+
+/* ---------- HOME ---------- */
+function vHome(){
+  const all=counts(CARDS.filter(c=>!st(c.id).sus));
+  const decks=deckList();
+  const groups={};
+  decks.forEach(d=>{ const top=d.name.split('::')[0]; (groups[top]=groups[top]||[]).push(d); });
+  let h=`<div class="card-panel">
+    <h2>今日の学習</h2>
+    <div class="grid4">
+      <div class="kpi"><b style="color:var(--new)">${all.n}</b><span>未学習</span></div>
+      <div class="kpi"><b style="color:var(--learn)">${all.l}</b><span>学習中</span></div>
+      <div class="kpi"><b style="color:var(--due)">${all.d}</b><span>復習期限</span></div>
+      <div class="kpi"><b>${DAILY.n+DAILY.r}</b><span>本日回答</span></div>
+    </div>
+    <div class="row" style="margin-top:13px;gap:8px">
+      <button class="btn primary sp" id="goAll">▶ すべて学習する</button>
+      <button class="btn" id="btnOrder">${CFG.order==='rand'?'🔀 ランダム':'➡ 順番'}</button>
+    </div>
+    <div style="font-size:11.5px;color:var(--muted);margin-top:9px">
+      新規上限 ${CFG.newPerDay}/日（残 ${Math.max(0,CFG.newPerDay-DAILY.n)}）　·　復習上限 ${CFG.revPerDay}/日（残 ${Math.max(0,CFG.revPerDay-DAILY.r)}）
+    </div>
+  </div>`;
+  h+=`<div style="margin-top:14px"><h2 style="padding-left:4px">デッキ（${CARDS.length} 枚）</h2>`;
+  Object.keys(groups).sort().forEach(top=>{
+    const sub=groups[top];
+    const tot=sub.reduce((s,d)=>s+d.cards.length,0);
+    const tc=counts(sub.flatMap(d=>d.cards));
+    h+=`<div class="deck" data-deck="${esc(top)}">
+      <div style="font-size:20px">📚</div>
+      <div class="nm"><b>${esc(top)}</b><span>${tot} 枚 · 習得 ${tc.mat}</span>
+        ${barHTML(sub.flatMap(d=>d.cards))}</div>
+      <div class="counts">${cChip(tc)}</div></div>`;
+    if(sub.length>1||sub[0].name!==top){
+      sub.forEach(d=>{
+        const c2=counts(d.cards);
+        h+=`<div class="deck" data-deck="${esc(d.name)}" style="margin-left:22px;padding:10px 13px">
+          <div style="font-size:15px">📄</div>
+          <div class="nm"><b style="font-size:13.5px;font-weight:600">${esc(d.name.split('::').slice(1).join('::')||d.name)}</b>
+          <span>${d.cards.length} 枚</span></div>
+          <div class="counts">${cChip(c2)}</div></div>`;
+      });
+    }
+  });
+  h+=`</div>`;
+  $('#view').innerHTML=h;
+  $('#goAll').onclick=()=>{ CFG.deck=''; saveCfg(); startStudy(); };
+  $('#btnOrder').onclick=()=>{ CFG.order=CFG.order==='rand'?'seq':'rand'; saveCfg(); vHome(); };
+  document.querySelectorAll('.deck').forEach(el=>el.onclick=()=>{ CFG.deck=el.dataset.deck; saveCfg(); startStudy(); });
+}
+function cChip(c){ return `<span class="chip new">${c.n}</span><span class="chip learn">${c.l}</span><span class="chip due">${c.d}</span>`; }
+function barHTML(cards){
+  let n=0,l=0,y=0,m=0; cards.forEach(c=>{const s=st(c.id);
+    if(s.s===0)n++; else if(s.s===1||s.s===3)l++; else if(s.iv>=21)m++; else y++; });
+  const t=Math.max(1,cards.length);
+  const w=x=>(x/t*100).toFixed(2)+'%';
+  return `<div class="bar"><i class="b-mature" style="width:${w(m)}"></i><i class="b-young" style="width:${w(y)}"></i><i class="b-learn" style="width:${w(l)}"></i><i class="b-new" style="width:${w(n)}"></i></div>`;
+}
+
+/* ---------- STUDY ---------- */
+function startStudy(){ buildQueue(); CUR=null; LAST=null; go('study'); }
+function vStudy(){
+  if(!QUEUE.length && !CUR) buildQueue();
+  if(!CUR){ CUR=QUEUE.shift()||null; SHOWN=false; }
+  const dkName = CFG.deck||'すべてのデッキ';
+  if(!CUR){
+    $('#view').innerHTML=`<div class="card-panel donebox">
+      <div class="big">🎉</div>
+      <h3 style="margin:8px 0 4px">お疲れさま！</h3>
+      <p style="color:var(--muted);font-size:13px;margin:0 0 18px">「${esc(dkName)}」の本日の学習は完了です。<br>本日の回答：${DAILY.n+DAILY.r} 回（新規 ${DAILY.n} / 復習 ${DAILY.r}）</p>
+      <div class="row" style="justify-content:center;gap:8px">
+        <button class="btn primary" id="again">もう一度チェック</button>
+        <button class="btn" id="home">ホームへ</button>
+      </div></div>`;
+    $('#again').onclick=()=>{ buildQueue(); CUR=null; vStudy(); };
+    $('#home').onclick=()=>go('home');
+    return;
+  }
+  const c=CUR, s=st(c.id);
+  const kind = s.s===0?'<span class="chip new">未学習</span>' : (s.s===1||s.s===3)?'<span class="chip learn">学習中</span>':'<span class="chip due">復習</span>';
+  const pct = SESSION.total? (SESSION.done/SESSION.total*100):0;
+  $('#view').innerHTML=`
+   <div class="studyhead"><span>${esc(dkName)}</span>${kind}<span class="sp"></span>
+     <span>残り ${QUEUE.length+1} / ${SESSION.total||1}</span></div>
+   <div class="pbar"><i style="width:${pct}%"></i></div>
+   <div class="scene"><div class="flip ${SHOWN?'flipped':''}" id="flip">
+     <div class="face front"><div class="tag">Question</div>
+       <div class="qtext">${esc(c.q)}</div>
+       <div class="hint">タップ / Space で答えを表示</div></div>
+     <div class="face back"><div class="tag">Answer</div>
+       <div class="aq">${esc(c.q)}</div>
+       <div class="atext">${esc(c.a)}</div>
+       ${c.n?`<div class="anote">💡 ${esc(c.n)}</div>`:''}
+       ${c.t?`<div class="anote" style="border:none;padding-top:6px;font-size:11.5px;opacity:.7">🏷 ${esc(c.t)}</div>`:''}
+     </div></div></div>
+   <div id="ctrl"></div>
+   <div class="row" style="margin-top:4px">
+     <button class="btn" id="sus" style="font-size:12px;padding:6px 11px">⏸ 一時停止</button>
+     <button class="btn" id="undo" style="font-size:12px;padding:6px 11px" ${LAST?'':'disabled'}>↩ 取り消し</button>
+     <span class="sp"></span>
+     <span style="font-size:11px;color:var(--muted)">EF ${s.ef.toFixed(2)} · ${s.r}回 · ${s.iv?fmtIv(s.iv):'—'}</span>
+   </div>`;
+  const ctrl=$('#ctrl');
+  if(!SHOWN){
+    ctrl.innerHTML=`<button class="showbtn" id="show">答えを見る　（Space）</button>`;
+    $('#show').onclick=doShow;
+  } else {
+    ctrl.innerHTML=`<div class="grades">
+      <button class="g1" data-g="1">もう一度<small>${nextIvLabel(c.id,1)}</small></button>
+      <button class="g2" data-g="2">難しい<small>${nextIvLabel(c.id,2)}</small></button>
+      <button class="g3" data-g="3">普通<small>${nextIvLabel(c.id,3)}</small></button>
+      <button class="g4" data-g="4">簡単<small>${nextIvLabel(c.id,4)}</small></button></div>`;
+    ctrl.querySelectorAll('button').forEach(b=>b.onclick=()=>grade(+b.dataset.g));
+  }
+  fitScene();
+  $('#flip').onclick=()=>{ if(!SHOWN) doShow(); };
+  $('#sus').onclick=()=>{ const x=Object.assign({s:0,due:0,iv:0,ef:2.5,r:0,l:0,k:0},P[c.id]||{}); x.sus=1; P[c.id]=x; saveP(); toast('このカードを一時停止しました'); CUR=null; vStudy(); };
+  $('#undo').onclick=undo;
+}
+function fitScene(){
+  const sc=document.querySelector('.scene'); if(!sc) return;
+  const f=sc.querySelector('.front'), b=sc.querySelector('.back');
+  const h=Math.max(300, f.scrollHeight+4, b.scrollHeight+4);
+  sc.style.minHeight=Math.min(h, Math.round(window.innerHeight*0.62))+'px';
+}
+function doShow(){ SHOWN=true; vStudy(); }
+function grade(g){
+  const c=CUR; const before=JSON.parse(JSON.stringify(P[c.id]||null));
+  answer(c.id,g);
+  LAST={id:c.id,before:before,card:c,dn:DAILY.n,dr:DAILY.r};
+  SESSION.done++;
+  const s=st(c.id);
+  if(s.s===1||s.s===3){ // 学習中は 10 分以内なら同一セッション内で再出題
+    if(s.due-Date.now() < 11*MIN) QUEUE.push(c);
+  }
+  CUR=null; SHOWN=false; vStudy();
+}
+function undo(){
+  if(!LAST) return;
+  if(LAST.before===null) delete P[LAST.id]; else P[LAST.id]=LAST.before;
+  saveP(); LOG.pop(); LS.set(KEY.log,LOG);
+  QUEUE=QUEUE.filter(x=>x.id!==LAST.id);
+  if(CUR) QUEUE.unshift(CUR);
+  CUR=LAST.card; SHOWN=true; SESSION.done=Math.max(0,SESSION.done-1);
+  LAST=null; toast('直前の回答を取り消しました'); vStudy();
+}
+
+/* ---------- BROWSE ---------- */
+let BQ='', BF='all', BLIMIT=120;
+function vBrowse(){
+  const decks=deckList();
+  let h=`<div class="card-panel">
+    <input id="q" placeholder="🔍 表・裏・メモ・タグを検索…" value="${esc(BQ)}">
+    <div class="row" style="margin-top:9px;gap:8px;flex-wrap:wrap">
+      <select id="dk" style="flex:2;min-width:150px"><option value="">すべてのデッキ</option>
+        ${decks.map(d=>`<option value="${esc(d.name)}" ${CFG.deck===d.name?'selected':''}>${esc(d.name)} (${d.cards.length})</option>`).join('')}</select>
+      <select id="ft" style="flex:1;min-width:110px">
+        ${[['all','状態：すべて'],['new','未学習'],['learn','学習中'],['due','期限切れ'],['mature','習得済み'],['sus','一時停止']].map(o=>`<option value="${o[0]}" ${BF===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select>
+    </div></div>`;
+  const now=Date.now();
+  const q=BQ.trim().toLowerCase();
+  let list=CARDS.filter(c=>{
+    if(CFG.deck && !inDeck(c,CFG.deck)) return false;
+    const s=st(c.id);
+    if(BF==='new'&&s.s!==0) return false;
+    if(BF==='learn'&&!(s.s===1||s.s===3)) return false;
+    if(BF==='due'&&!(s.s===2&&s.due<=now)) return false;
+    if(BF==='mature'&&!(s.s===2&&s.iv>=21)) return false;
+    if(BF==='sus'&&!s.sus) return false;
+    if(BF!=='sus'&&s.sus) return false;
+    if(q && (c.q+' '+c.a+' '+c.n+' '+c.t).toLowerCase().indexOf(q)<0) return false;
+    return true;
+  });
+  h+=`<div style="margin-top:12px;font-size:12px;color:var(--muted);padding-left:4px">${list.length} 件</div><div id="rows" style="margin-top:8px"></div>`;
+  if(list.length>BLIMIT) h+=`<button class="btn" id="more" style="width:100%;margin-top:8px">さらに表示（残り ${list.length-BLIMIT}）</button>`;
+  $('#view').innerHTML=h;
+  const rows=$('#rows');
+  rows.innerHTML=list.slice(0,BLIMIT).map(c=>{
+    const s=st(c.id);
+    const badge = s.sus?'<span class="chip">停止</span>': s.s===0?'<span class="chip new">未</span>':(s.s===1||s.s===3)?'<span class="chip learn">学</span>':(s.iv>=21?'<span class="chip due">熟</span>':'<span class="chip due">復</span>');
+    return `<div class="brow" data-id="${c.id}"><div class="q">${esc(c.q)}</div>
+      <div class="a">${esc(c.a)}${c.n?'\n💡 '+esc(c.n):''}</div>
+      <div class="meta">${badge}<span>${esc(c.d)}</span>${c.t?`<span>🏷 ${esc(c.t)}</span>`:''}${s.iv?`<span>間隔 ${fmtIv(s.iv)}</span>`:''}</div></div>`;
+  }).join('');
+  rows.querySelectorAll('.brow').forEach(el=>el.onclick=()=>el.classList.toggle('open'));
+  $('#q').oninput=e=>{ BQ=e.target.value; BLIMIT=120; clearTimeout(window._bt); window._bt=setTimeout(()=>{const p=e.target.selectionStart;vBrowse();const i=$('#q');i.focus();i.setSelectionRange(p,p);},220); };
+  $('#dk').onchange=e=>{ CFG.deck=e.target.value; saveCfg(); BLIMIT=120; vBrowse(); };
+  $('#ft').onchange=e=>{ BF=e.target.value; BLIMIT=120; vBrowse(); };
+  if($('#more')) $('#more').onclick=()=>{ BLIMIT+=200; vBrowse(); };
+}
+
+/* ---------- STATS ---------- */
+function vStats(){
+  const now=Date.now();
+  const act=CARDS.filter(c=>!st(c.id).sus);
+  const c=counts(act);
+  const mature=act.filter(x=>{const s=st(x.id);return s.s===2&&s.iv>=21;}).length;
+  const young=act.filter(x=>{const s=st(x.id);return s.s===2&&s.iv<21;}).length;
+  const learn=act.filter(x=>{const s=st(x.id);return s.s===1||s.s===3;}).length;
+  const nw=act.filter(x=>st(x.id).s===0).length;
+  // forecast 14 days
+  const fc=new Array(14).fill(0);
+  act.forEach(x=>{ const s=st(x.id); if(s.s!==2) return; const d=Math.floor((s.due-now)/DAY); if(d>=0&&d<14) fc[d]++; else if(d<0) fc[0]++; });
+  const mx=Math.max(1,...fc);
+  // 7-day activity
+  const days=[]; for(let i=6;i>=0;i--){ const d=new Date(now-i*DAY); days.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')); }
+  const dayc={}; days.forEach(d=>dayc[d]=0);
+  LOG.forEach(l=>{ const d=new Date(l.t); const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); if(k in dayc) dayc[k]++; });
+  const mx2=Math.max(1,...days.map(d=>dayc[d]));
+  const total=LOG.length, good=LOG.filter(l=>l.g>=3).length;
+  $('#view').innerHTML=`
+  <div class="grid4">
+    <div class="kpi"><b>${CARDS.length}</b><span>総カード</span></div>
+    <div class="kpi"><b style="color:var(--good)">${mature}</b><span>習得済み</span></div>
+    <div class="kpi"><b style="color:var(--due)">${c.d}</b><span>復習期限</span></div>
+    <div class="kpi"><b>${total?Math.round(good/total*100):0}%</b><span>正答率</span></div>
+  </div>
+  <div class="card-panel" style="margin-top:14px"><h2>学習の進み具合</h2>
+    ${barHTML(act)}
+    <div class="row" style="margin-top:10px;font-size:12px;gap:14px;flex-wrap:wrap">
+      <span><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--good)"></i> 習得 ${mature}</span>
+      <span><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#a3e635"></i> 定着中 ${young}</span>
+      <span><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--learn)"></i> 学習中 ${learn}</span>
+      <span><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--new)"></i> 未学習 ${nw}</span>
+    </div></div>
+  <div class="card-panel" style="margin-top:14px"><h2>今後 14 日の復習予定</h2>
+    <div class="fc">${fc.map(v=>`<div style="height:${v/mx*100}%" title="${v}枚"></div>`).join('')}</div>
+    <div class="fclabels">${fc.map((v,i)=>`<span>${i%2===0?(i===0?'今日':i+'d'):''}</span>`).join('')}</div></div>
+  <div class="card-panel" style="margin-top:14px"><h2>直近 7 日の回答数</h2>
+    <div class="fc">${days.map(d=>`<div style="height:${dayc[d]/mx2*100}%" title="${dayc[d]}回"></div>`).join('')}</div>
+    <div class="fclabels">${days.map(d=>`<span>${d.slice(5).replace('-','/')}</span>`).join('')}</div></div>`;
+}
+
+/* ---------- SETTINGS / IMPORT ---------- */
+function openSettings(){
+  const m=$('#modal');
+  m.innerHTML=`
+   <h3>設定・データ管理</h3><p class="sub">カードの追加・書き出し・進捗のバックアップ</p>
+   <div class="row" style="gap:10px;margin-bottom:12px">
+     <div style="flex:1"><label style="font-size:12px;color:var(--muted)">1日の新規上限</label><input id="np" type="number" min="0" value="${CFG.newPerDay}"></div>
+     <div style="flex:1"><label style="font-size:12px;color:var(--muted)">1日の復習上限</label><input id="rp" type="number" min="0" value="${CFG.revPerDay}"></div>
+   </div>
+   <h2 style="margin-top:16px">カードを追加 / 更新</h2>
+   <p style="font-size:12px;color:var(--muted);margin:0 0 8px">
+     TSV（タブ区切り）5列：<code>デッキ ⇥ 表 ⇥ 裏 ⇥ メモ ⇥ タグ</code><br>
+     同じ「デッキ＋表」のカードは上書きされ、学習進捗はそのまま引き継がれます。</p>
+   <textarea id="imp" rows="6" placeholder="解剖学::脳神経&#9;動眼神経が支配する筋は？&#9;上直筋・下直筋・内直筋・下斜筋…&#9;メモ&#9;脳神経"></textarea>
+   <div class="row" style="margin-top:9px;gap:8px;flex-wrap:wrap">
+     <button class="btn primary" id="doImp">＋ 取り込む</button>
+     <button class="btn" id="pickFile">📂 ファイル選択(.tsv/.txt/.json)</button>
+     <input type="file" id="file" accept=".tsv,.txt,.json,.csv" class="hide">
+   </div>
+   <h2 style="margin-top:18px">書き出し</h2>
+   <div class="row" style="gap:8px;flex-wrap:wrap">
+     <button class="btn" id="expCards">📤 全カード TSV</button>
+     <button class="btn" id="expProg">💾 進捗バックアップ</button>
+     <button class="btn" id="impProg">📥 進捗を復元</button>
+     <input type="file" id="pfile" accept=".json" class="hide">
+   </div>
+   <h2 style="margin-top:18px">リセット</h2>
+   <div class="row" style="gap:8px;flex-wrap:wrap">
+     <button class="btn" id="rsDaily">本日のカウントをリセット</button>
+     <button class="btn" id="rsUser" style="color:var(--hard)">追加カードを削除</button>
+     <button class="btn" id="rsAll" style="color:var(--again)">全進捗を消去</button>
+   </div>
+   <h2 style="margin-top:18px">このアプリについて</h2>
+   <p style="font-size:12px;color:var(--muted);margin:0">
+     バージョン <b>${APP_VERSION}</b>　·　収録 <b>${CARDS.length}</b> 枚<br>
+     ${location.protocol.indexOf('http')===0 ? '配信元：'+esc(location.origin)+'（オフライン利用可）' : 'ローカルファイルとして実行中'}
+   </p>
+   <div class="row" style="margin-top:18px"><span class="sp"></span><button class="btn primary" id="close">閉じる</button></div>`;
+  $('#mask').classList.add('on');
+  const close=()=>{ CFG.newPerDay=Math.max(0,+$('#np').value||0); CFG.revPerDay=Math.max(0,+$('#rp').value||0); saveCfg(); $('#mask').classList.remove('on'); render(); };
+  $('#close').onclick=close;
+  $('#doImp').onclick=()=>{ importText($('#imp').value); close(); };
+  $('#pickFile').onclick=()=>$('#file').click();
+  $('#file').onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ importText(r.result); close(); }; r.readAsText(f); };
+  $('#expCards').onclick=()=>dl('cards_all.tsv', CARDS.map(c=>[c.d,c.q,c.a,c.n,c.t].join('\t')).join('\n'));
+  $('#expProg').onclick=()=>dl('anki_progress_'+today()+'.json', JSON.stringify({prog:P,log:LOG,daily:DAILY,user:LS.get(KEY.user,[])}));
+  $('#impProg').onclick=()=>$('#pfile').click();
+  $('#pfile').onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader();
+    r.onload=()=>{ try{ const j=JSON.parse(r.result); if(j.prog){P=j.prog;saveP();} if(j.log){LOG=j.log;LS.set(KEY.log,LOG);} if(j.daily){DAILY=j.daily;LS.set(KEY.daily,DAILY);} if(j.user){LS.set(KEY.user,j.user);rebuild();} toast('進捗を復元しました'); close(); }catch(err){ toast('ファイルを読めませんでした'); } };
+    r.readAsText(f); };
+  $('#rsDaily').onclick=()=>{ DAILY={d:today(),n:0,r:0}; LS.set(KEY.daily,DAILY); toast('本日のカウントをリセット'); close(); };
+  $('#rsUser').onclick=()=>{ if(confirm('取り込んだ追加カードを削除しますか？（内蔵カードは残ります）')){ LS.set(KEY.user,[]); rebuild(); toast('追加カードを削除しました'); close(); } };
+  $('#rsAll').onclick=()=>{ if(confirm('すべての学習進捗を消去しますか？この操作は元に戻せません。')){ P={};LOG=[];DAILY={d:today(),n:0,r:0}; saveP();LS.set(KEY.log,LOG);LS.set(KEY.daily,DAILY); toast('進捗を消去しました'); close(); } };
+}
+function importText(txt){
+  if(!txt||!txt.trim()){ toast('内容がありません'); return; }
+  let add=[];
+  const t=txt.trim();
+  if(t[0]==='['||t[0]==='{'){
+    try{ const j=JSON.parse(t); const arr=Array.isArray(j)?j:(j.cards||[]);
+      add=arr.map(o=>({d:o.d||o.deck||'その他',q:o.q||o.front||'',a:o.a||o.back||'',n:o.n||o.note||'',t:o.t||o.tags||''})).filter(o=>o.q&&o.a);
+    }catch(e){ toast('JSON を解析できません'); return; }
+  } else {
+    let s=t; if(s.indexOf('\t')<0 && s.indexOf(',')>0) s=s.split(/\r?\n/).map(l=>l.split(',').join('\t')).join('\n');
+    add=parseTSV(s);
+  }
+  if(!add.length){ toast('有効なカードが見つかりません'); return; }
+  add.forEach(c=>c.id=cid(c.d,c.q));
+  const user=LS.get(KEY.user,[]);
+  const map={}; user.forEach(c=>map[cid(c.d,c.q)]=c);
+  let nAdd=0,nUp=0;
+  add.forEach(c=>{ if(map[c.id]) nUp++; else nAdd++; map[c.id]=c; });
+  LS.set(KEY.user,Object.values(map));
+  rebuild();
+  toast(`取り込み完了：新規 ${nAdd} 枚 / 更新 ${nUp} 枚`);
+}
+function dl(name,txt){
+  const b=new Blob([txt],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+}
+
+/* ---------- keyboard ---------- */
+document.addEventListener('keydown',e=>{
+  if(/input|textarea|select/i.test((e.target.tagName||''))) return;
+  if(VIEW!=='study') { if(e.key==='s'){go('study');} return; }
+  if(e.key===' '||e.key==='Enter'){ e.preventDefault(); if(!SHOWN&&CUR) doShow(); else if(CUR) grade(3); return; }
+  if(SHOWN&&CUR&&['1','2','3','4'].includes(e.key)){ e.preventDefault(); grade(+e.key); }
+  if(e.key==='z'&&LAST) undo();
+});
+
+/* ---------- PWA / Service Worker ---------- */
+const APP_VERSION = '__VERSION__';
+function initPWA(){
+  if(!('serviceWorker' in navigator)) return;
+  if(location.protocol.indexOf('http')!==0) return;   // file:// では登録しない
+  navigator.serviceWorker.register('sw.js').then(reg=>{
+    // 待機中の新バージョンがあれば知らせる
+    const notify = w => {
+      if(!w) return;
+      const bar=$('#updbar'); if(!bar) return;
+      bar.classList.add('on');
+      document.body.style.paddingTop = bar.offsetHeight+'px';   // ヘッダーに被らないよう押し下げる
+      $('#updbtn').onclick=()=>{ $('#updbtn').textContent='更新中…'; w.postMessage('skipWaiting'); };
+    };
+    if(reg.waiting) notify(reg.waiting);
+    reg.addEventListener('updatefound',()=>{
+      const w=reg.installing;
+      if(!w) return;
+      w.addEventListener('statechange',()=>{
+        if(w.state==='installed' && navigator.serviceWorker.controller) notify(reg.waiting||w);
+      });
+    });
+    // 起動時と復帰時に更新を確認
+    reg.update().catch(()=>{});
+    document.addEventListener('visibilitychange',()=>{ if(!document.hidden) reg.update().catch(()=>{}); });
+  }).catch(()=>{});
+  let reloading=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(reloading) return; reloading=true; location.reload();
+  });
+}
+
+/* ---------- boot ---------- */
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{ if(b.dataset.v==='study'&&VIEW!=='study') startStudy(); else go(b.dataset.v); });
+$('#btnSet').onclick=openSettings;
+$('#mask').onclick=e=>{ if(e.target===$('#mask')) $('#mask').classList.remove('on'); };
+$('#btnTheme').onclick=()=>{ const l=document.documentElement.classList.toggle('light'); document.documentElement.classList.toggle('dark',!l); CFG.theme=l?'light':'dark'; saveCfg(); };
+if(CFG.theme==='light'){ document.documentElement.classList.add('light'); document.documentElement.classList.remove('dark'); }
+checkDay(); rebuild(); go('home'); initPWA();
+$('#subttl').textContent = [...new Set(CARDS.map(c=>c.d.split('::')[0]))].join(' · ');
+</script>
+</body>
+</html>

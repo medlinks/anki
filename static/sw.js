@@ -4,7 +4,8 @@
 const VERSION = '__VERSION__';
 const CACHE = 'yb-' + VERSION;
 const ASSETS = ['./', './index.html', './manifest.webmanifest',
-                './icon-192.png', './icon-512.png', './icon-180.png', './icon-512-maskable.png'];
+                './icon-192.png', './icon-512.png', './icon-180.png', './icon-512-maskable.png',
+                './kijunchi.html'];
 
 self.addEventListener('install', e => {
   e.waitUntil((async () => {
@@ -26,17 +27,23 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
-  const isHTML = req.mode === 'navigate' ||
-                 (req.headers.get('accept') || '').includes('text/html');
+  // ページ遷移だけを network-first に。
+  // （accept ヘッダで判定していた頃は manifest.webmanifest まで HTML 扱いになり、
+  //   オフライン時に index.html が返って「Manifest: Syntax error」を起こしていた）
+  const isHTML = req.mode === 'navigate' || req.destination === 'document';
   if (isHTML) {
     e.respondWith((async () => {
       try {
         const fresh = await fetch(req);
         const c = await caches.open(CACHE);
-        c.put('./index.html', fresh.clone());
+        // 要求された URL そのものをキャッシュする。
+        // （以前は常に './index.html' に上書きしていたため、別冊ページを開くと
+        //   index.html のキャッシュが別冊の中身で潰れ、オフライン時に壊れていた）
+        c.put(req, fresh.clone());
         return fresh;
       } catch (err) {
-        return (await caches.match('./index.html')) ||
+        return (await caches.match(req)) ||
+               (await caches.match('./index.html')) ||
                (await caches.match('./')) ||
                new Response('オフラインです', {status: 503, headers: {'content-type': 'text/plain; charset=utf-8'}});
       }

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6f4f5">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<title>記憶すべき基準値 ─ 暗記カード</title>
+<style>
+  :root{
+    --bg:#f6f4f5; --card:#ffffff; --ink:#262224; --sub:#7d757a;
+    --line:#eae4e7; --accent:#d94f83; --accent-soft:#fbe6ef; --accent-ink:#c23c70;
+    --gray-bar:#6f6a6d;
+    --ok:#1f8a4c; --ok-soft:#e4f4ea; --ng:#c02f3c; --ng-soft:#fbe9ea;
+    --shadow:0 1px 2px rgba(0,0,0,.05),0 8px 22px rgba(0,0,0,.05);
+  }
+  html[data-theme="dark"]{
+    --bg:#121013; --card:#1e1b1f; --ink:#f4eff2; --sub:#a49aa0;
+    --line:#312c31; --accent:#f3789f; --accent-soft:#3a2130; --accent-ink:#f3789f;
+    --gray-bar:#4b454a;
+    --ok:#4ecb7a; --ok-soft:#17301f; --ng:#ff6b74; --ng-soft:#331a1d;
+    --shadow:0 1px 3px rgba(0,0,0,.5);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",
+      "Noto Sans JP","Segoe UI",sans-serif;font-feature-settings:"palt";}
+  .wrap{max-width:920px;margin:0 auto;padding:14px 16px 70px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 12px}
+  h1{font-size:18px;margin:0;letter-spacing:.02em}
+  h1 span{display:block;font-size:11px;color:var(--sub);font-weight:400;margin-top:3px}
+  .icon-btn{border:0;background:var(--card);color:var(--sub);width:34px;height:34px;
+    border-radius:50%;font-size:15px;cursor:pointer;box-shadow:var(--shadow)}
+  .tabs{display:flex;background:var(--card);border-radius:12px;padding:4px;gap:2px;box-shadow:var(--shadow)}
+  .tabs button{flex:1;border:0;background:transparent;color:var(--sub);padding:9px 4px;
+    font-size:13.5px;font-weight:600;border-radius:9px;cursor:pointer;font-family:inherit}
+  .tabs button.on{background:var(--accent);color:#fff}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 2px}
+  .chip{border:1px solid var(--line);background:var(--card);color:var(--sub);
+    padding:6px 11px;border-radius:999px;font-size:12.5px;cursor:pointer;font-family:inherit}
+  .chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+  .bar{display:flex;align-items:center;justify-content:space-between;margin:12px 2px 8px;
+    font-size:12.5px;color:var(--sub)}
+  .prog{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin-bottom:14px}
+  .prog i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+  .card{background:var(--card);border-radius:18px;box-shadow:var(--shadow);
+    padding:26px 22px;min-height:240px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;gap:13px}
+  .sect{font-size:11.5px;color:var(--sub);letter-spacing:.08em}
+  .term{font-size:25px;font-weight:700;line-height:1.4}
+  .term.small{font-size:20px}
+  .val{font-size:25px;font-weight:700;color:var(--accent-ink);line-height:1.5;white-space:pre-line}
+  .val.small{font-size:19px}
+  .hint{font-size:12px;color:var(--sub);line-height:1.6}
+  .flip-area{cursor:pointer}
+  .divider{width:46px;height:1px;background:var(--line)}
+  .row{display:flex;gap:10px;margin-top:14px}
+  .btn{flex:1;border:0;border-radius:13px;padding:14px 8px;font-size:15px;font-weight:700;
+    background:var(--card);color:var(--ink);box-shadow:var(--shadow);cursor:pointer;font-family:inherit}
+  .btn.primary{background:var(--accent);color:#fff}
+  .opts{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+  .opt{border:1px solid var(--line);background:var(--card);border-radius:13px;padding:14px 16px;
+    font-size:16.5px;font-weight:600;text-align:left;cursor:pointer;font-family:inherit;color:var(--ink);
+    white-space:pre-line;line-height:1.45;transition:.12s}
+  .opt:hover{border-color:var(--accent)}
+  .opt.correct{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+  .opt.wrong{background:var(--ng-soft);border-color:var(--ng);color:var(--ng)}
+  .opt .k{display:inline-block;width:20px;color:var(--sub);font-weight:700}
+  .judge{display:flex;gap:9px;margin-top:14px}
+  .judge .btn{font-size:16px;padding:16px 6px}
+  .fb{margin-top:12px;text-align:center;font-size:14px;font-weight:700;min-height:22px}
+  .fb.ok{color:var(--ok)} .fb.ng{color:var(--ng)}
+  /* 一覧（書籍レイアウト風） */
+  .note{background:var(--gray-bar);color:#fff;border-radius:12px;padding:13px 16px;margin:6px 0 16px;
+    font-size:12px;line-height:1.7}
+  .note b{font-size:15px;display:block;margin-bottom:5px;font-weight:600}
+  .cols{column-count:2;column-gap:22px}
+  @media(max-width:700px){ .cols{column-count:1} }
+  .block{break-inside:avoid;margin-bottom:16px;background:var(--card);border-radius:14px;
+    box-shadow:var(--shadow);overflow:hidden}
+  .block h2{margin:0;background:var(--accent-soft);color:var(--accent-ink);
+    font-size:14px;padding:9px 14px;font-weight:600;letter-spacing:.04em}
+  .block .g{font-size:11.5px;color:var(--sub);padding:9px 14px 3px;border-bottom:1px solid var(--line);
+    letter-spacing:.05em}
+  .lrow{display:flex;justify-content:space-between;gap:12px;padding:7px 14px;
+    border-top:1px solid var(--line);font-size:13px;align-items:baseline}
+  .lrow .nm{flex:1;line-height:1.5}
+  .lrow .vl{color:var(--accent-ink);font-weight:700;text-align:right;white-space:pre-line;line-height:1.5;
+    flex-shrink:0;max-width:56%}
+  .foot{margin-top:22px;text-align:center;font-size:11.5px;color:var(--sub);line-height:1.8}
+  @media(max-width:480px){ .term{font-size:22px} .term.small{font-size:17px}
+    .val{font-size:21px} .val.small{font-size:16px} .opt{font-size:15px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>記憶すべき基準値<span>医師国家試験出題基準（平成30年版）＋試験前チェック　·　予備試験 暗記カード 別冊</span></h1>
+    <div style="display:flex;gap:8px;align-items:center">
+      <a href="./" class="icon-btn" title="暗記カードへ戻る"
+         style="text-decoration:none;display:grid;place-items:center;line-height:1">←</a>
+      <button class="icon-btn" id="shuffle" title="シャッフル">⇄</button>
+      <button class="icon-btn" id="theme" title="ダーク/ライト">◐</button>
+    </div>
+  </header>
+
+  <div class="tabs" id="tabs">
+    <button data-m="flip" class="on">翻卡</button>
+    <button data-m="quiz">選択問題</button>
+    <button data-m="judge">高低判定</button>
+    <button data-m="list">一覧</button>
+  </div>
+
+  <div class="chips" id="chips"></div>
+
+  <div id="study">
+    <div class="bar"><span id="counter">1 / 1</span><span id="score"></span></div>
+    <div class="prog"><i id="progbar"></i></div>
+    <div id="stage"></div>
+    <div class="row" id="nav">
+      <button class="btn" id="prev">← 前へ</button>
+      <button class="btn primary" id="next">次へ →</button>
+    </div>
+  </div>
+
+  <div id="listview" style="display:none"></div>
+
+  <div class="foot">
+    翻卡：クリック / Space　・　選択問題：1〜4 キー　・　判定：← ↓ → キー　・　← → で前後移動<br>
+    「高低判定」は数値のある項目のみ出題されます
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   データ
+   s  : セクション（フィルタ単位）   g : 小見出し
+   n  : 表面（項目名 / 問い）        a : 裏面（答え）
+   j  : 高低判定用レンジ  q : 選択肢を手書き指定  dg : 同グループから選択肢を作る
+   nq : 選択問題に出さない
+   ========================================================= */
+const DATA = [
+/* ---------- 血液学検査 ---------- */
+{s:"血液学",n:"赤沈",a:"♂ 2〜10 mm/時\n♀ 3〜15 mm/時",
+ j:[{label:"♂",lo:2,hi:10,dec:0,u:"mm/時"},{label:"♀",lo:3,hi:15,dec:0,u:"mm/時"}]},
+{s:"血液学",n:"赤血球数（RBC）",a:"♂ 410〜610万/mm³\n♀ 380〜530万/mm³",
+ j:[{label:"♂",lo:410,hi:610,dec:0,u:"万/mm³"},{label:"♀",lo:380,hi:530,dec:0,u:"万/mm³"}]},
+{s:"血液学",n:"ヘモグロビン（Hb）",a:"♂ 13〜17 g/dL\n♀ 11〜16 g/dL",
+ j:[{label:"♂",lo:13,hi:17,dec:1,u:"g/dL"},{label:"♀",lo:11,hi:16,dec:1,u:"g/dL"}]},
+{s:"血液学",n:"ヘマトクリット（Ht）",a:"♂ 40〜54 %\n♀ 36〜42 %",
+ j:[{label:"♂",lo:40,hi:54,dec:0,u:"%"},{label:"♀",lo:36,hi:42,dec:0,u:"%"}]},
+{s:"血液学",g:"赤血球指数",n:"MCV",a:"83〜93 fL（μm³）",j:[{lo:83,hi:93,dec:0,u:"fL"}]},
+{s:"血液学",g:"赤血球指数",n:"MCH",a:"27〜32 pg",j:[{lo:27,hi:32,dec:0,u:"pg"}]},
+{s:"血液学",g:"赤血球指数",n:"MCHC",a:"31〜37 %",j:[{lo:31,hi:37,dec:0,u:"%"}]},
+{s:"血液学",n:"網赤血球（Ret）",a:"5〜15 ‰",j:[{lo:5,hi:15,dec:0,u:"‰"}]},
+{s:"血液学",n:"白血球数（WBC）",a:"4,000〜10,000 /mm³",j:[{lo:4000,hi:10000,dec:0,u:"/mm³",step:100}]},
+{s:"血液学",g:"白血球百分比",n:"桿状核好中球",a:"2〜15 %",j:[{lo:2,hi:15,dec:0,u:"%"}]},
+{s:"血液学",g:"白血球百分比",n:"分葉核好中球",a:"40〜60 %",j:[{lo:40,hi:60,dec:0,u:"%"}]},
+{s:"血液学",g:"白血球百分比",n:"好酸球",a:"1〜5 %",j:[{lo:1,hi:5,dec:0,u:"%"}]},
+{s:"血液学",g:"白血球百分比",n:"好塩基球",a:"0〜2 %",j:[{lo:0,hi:2,dec:0,u:"%"}]},
+{s:"血液学",g:"白血球百分比",n:"単球",a:"2〜10 %",j:[{lo:2,hi:10,dec:0,u:"%"}]},
+{s:"血液学",g:"白血球百分比",n:"リンパ球",a:"20〜50 %",j:[{lo:20,hi:50,dec:0,u:"%"}]},
+{s:"血液学",n:"血小板（Plt）",a:"13〜35万/mm³",j:[{lo:13,hi:35,dec:1,u:"万/mm³"}]},
+
+/* ---------- 生化学的検査 ---------- */
+{s:"生化学",g:"血糖検査",n:"随時血糖",a:"139 mg/dL 以下",j:[{lo:null,hi:139,dec:0,u:"mg/dL"}]},
+{s:"生化学",g:"血糖検査",n:"空腹時血糖",a:"110 mg/dL 以下（下限 50〜70）",j:[{lo:70,hi:110,dec:0,u:"mg/dL"}]},
+{s:"生化学",g:"蛋白",n:"総蛋白（TP）",a:"6.5〜8.0 g/dL",j:[{lo:6.5,hi:8.0,dec:1,u:"g/dL"}]},
+{s:"生化学",g:"蛋白",n:"アルブミン（Alb）",a:"4.5〜5.5 g/dL",j:[{lo:4.5,hi:5.5,dec:1,u:"g/dL"}]},
+{s:"生化学",g:"蛋白分画",n:"アルブミン（分画）",a:"61.6〜71.2 %",j:[{lo:61.6,hi:71.2,dec:1,u:"%"}]},
+{s:"生化学",g:"蛋白分画",n:"α₁-グロブリン",a:"1.9〜3.0 %",j:[{lo:1.9,hi:3.0,dec:1,u:"%"}]},
+{s:"生化学",g:"蛋白分画",n:"α₂-グロブリン",a:"5.3〜8.9 %",j:[{lo:5.3,hi:8.9,dec:1,u:"%"}]},
+{s:"生化学",g:"蛋白分画",n:"β-グロブリン",a:"6.9〜10.9 %",j:[{lo:6.9,hi:10.9,dec:1,u:"%"}]},
+{s:"生化学",g:"蛋白分画",n:"γ-グロブリン",a:"10.8〜19.6 %",j:[{lo:10.8,hi:19.6,dec:1,u:"%"}]},
+{s:"生化学",g:"含窒素成分",n:"尿素窒素（BUN）",a:"9〜20 mg/dL",j:[{lo:9,hi:20,dec:0,u:"mg/dL"}]},
+{s:"生化学",g:"含窒素成分",n:"クレアチニン（Cr）",a:"♂ 0.7〜1.2 mg/dL\n♀ 0.5〜0.9 mg/dL",
+ j:[{label:"♂",lo:0.7,hi:1.2,dec:1,u:"mg/dL"},{label:"♀",lo:0.5,hi:0.9,dec:1,u:"mg/dL"}]},
+{s:"生化学",g:"含窒素成分",n:"尿酸（UA）",a:"♂ 3.0〜7.7 mg/dL\n♀ 2.0〜5.5 mg/dL",
+ j:[{label:"♂",lo:3.0,hi:7.7,dec:1,u:"mg/dL"},{label:"♀",lo:2.0,hi:5.5,dec:1,u:"mg/dL"}]},
+{s:"生化学",g:"脂質",n:"総コレステロール（TC）",a:"220 mg/dL 以下",j:[{lo:null,hi:220,dec:0,u:"mg/dL"}]},
+{s:"生化学",g:"脂質",n:"トリグリセリド（TG）",a:"30〜135 mg/dL",j:[{lo:30,hi:135,dec:0,u:"mg/dL"}]},
+{s:"生化学",g:"脂質",n:"HDL-コレステロール",a:"40 mg/dL 以上",j:[{lo:40,hi:null,dec:0,u:"mg/dL"}]},
+{s:"生化学",g:"脂質",n:"LDL-コレステロール",a:"60〜139 mg/dL",j:[{lo:60,hi:139,dec:0,u:"mg/dL"}]},
+{s:"生化学",g:"生体色素",n:"総ビリルビン（T.Bil）",a:"0.2〜1.1 mg/dL",j:[{lo:0.2,hi:1.1,dec:1,u:"mg/dL"}]},
+{s:"生化学",g:"生体色素",n:"直接ビリルビン（D.Bil）",a:"0.5 mg/dL 以下",j:[{lo:null,hi:0.5,dec:1,u:"mg/dL"}]},
+{s:"生化学",g:"酵素",n:"AST",a:"10〜35 IU/L",j:[{lo:10,hi:35,dec:0,u:"IU/L"}]},
+{s:"生化学",g:"酵素",n:"ALT",a:"5〜40 IU/L",j:[{lo:5,hi:40,dec:0,u:"IU/L"}]},
+{s:"生化学",g:"電解質",n:"Na",a:"135〜145 mEq/L",j:[{lo:135,hi:145,dec:0,u:"mEq/L"}]},
+{s:"生化学",g:"電解質",n:"K",a:"3.5〜4.5 mEq/L",j:[{lo:3.5,hi:4.5,dec:1,u:"mEq/L"}]},
+{s:"生化学",g:"電解質",n:"Cl",a:"96〜108 mEq/L",j:[{lo:96,hi:108,dec:0,u:"mEq/L"}]},
+{s:"生化学",g:"電解質",n:"Ca",a:"8.4〜10.0 mg/dL",j:[{lo:8.4,hi:10.0,dec:1,u:"mg/dL"}]},
+{s:"生化学",g:"電解質",n:"P",a:"2.5〜4.5 mg/dL",j:[{lo:2.5,hi:4.5,dec:1,u:"mg/dL"}]},
+{s:"生化学",g:"重金属",n:"Fe",a:"♂ 59〜161 μg/dL\n♀ 29〜158 μg/dL",
+ j:[{label:"♂",lo:59,hi:161,dec:0,u:"μg/dL"},{label:"♀",lo:29,hi:158,dec:0,u:"μg/dL"}]},
+
+/* ---------- 免疫学検査 ---------- */
+{s:"免疫",n:"C反応性蛋白（CRP）",a:"0.3 mg/dL 以下",j:[{lo:null,hi:0.3,dec:1,u:"mg/dL"}]},
+
+/* ---------- 動脈血ガス分析 ---------- */
+{s:"血ガス",n:"pH",a:"7.40 ± 0.05",j:[{lo:7.35,hi:7.45,dec:2,u:""}],
+ q:["7.35 ± 0.05","7.40 ± 0.10","7.45 ± 0.05"]},
+{s:"血ガス",n:"PaO₂",a:"80〜100 Torr",j:[{lo:80,hi:100,dec:0,u:"Torr"}]},
+{s:"血ガス",n:"PaCO₂",a:"40 ± 5 Torr",j:[{lo:35,hi:45,dec:0,u:"Torr"}],
+ q:["35 ± 5 Torr","40 ± 10 Torr","45 ± 5 Torr"]},
+{s:"血ガス",n:"HCO₃⁻",a:"24 ± 2 mEq/L",j:[{lo:22,hi:26,dec:0,u:"mEq/L"}],
+ q:["22 ± 2 mEq/L","26 ± 2 mEq/L","24 ± 4 mEq/L"]},
+{s:"血ガス",n:"BE（base excess）",a:"0 ± 2 mEq/L",q:["0 ± 5 mEq/L","2 ± 2 mEq/L","0 ± 1 mEq/L"]},
+{s:"血ガス",n:"A-aDO₂ の基準値",a:"10 Torr 以下",j:[{lo:null,hi:10,dec:0,u:"Torr"}]},
+
+/* ---------- バイタル・循環 ---------- */
+{s:"バイタル",n:"体温（直腸温）",a:"36.2〜37.5 ℃",j:[{lo:36.2,hi:37.5,dec:1,u:"℃"}]},
+{s:"バイタル",n:"体温が高い順",a:"直腸温 ＞ 口腔温 ＞ 腋窩温",nq:1},
+{s:"バイタル",n:"脈拍",a:"60〜100 回/分",j:[{lo:60,hi:100,dec:0,u:"回/分"}]},
+{s:"バイタル",n:"呼吸数",a:"12〜20 回/分",j:[{lo:12,hi:20,dec:0,u:"回/分"}]},
+{s:"バイタル",n:"高血圧の基準",a:"140/90 mmHg 以上"},
+{s:"バイタル",n:"ショック時の収縮期血圧",a:"90 mmHg 以下"},
+{s:"バイタル",n:"高血圧者でショックを疑う血圧低下",a:"ふだんより 30 mmHg 以上の低下"},
+{s:"バイタル",n:"1回拍出量",a:"50〜60 mL",j:[{lo:50,hi:60,dec:0,u:"mL"}]},
+{s:"バイタル",n:"心拍出量（＝心拍数 × 1回拍出量）",a:"4,000〜5,000 mL/分",
+ j:[{lo:4000,hi:5000,dec:0,u:"mL/分",step:100}]},
+{s:"バイタル",n:"主要臓器の血流量（%）",a:"冠循環 5％，腎 25％，肝 25％，脳 15％",
+ q:["冠循環 15％，腎 25％，肝 5％，脳 25％","冠循環 5％，腎 15％，肝 25％，脳 25％",
+    "冠循環 10％，腎 20％，肝 20％，脳 10％"]},
+
+/* ---------- 計算式 ---------- */
+{s:"計算式",n:"血清浸透圧の計算式",a:"2 × 血清Na ＋ 血糖値/18 ＋ BUN/2.8",
+ q:["2 × 血清Na ＋ 血糖値/2.8 ＋ BUN/18","血清Na ＋ 血糖値/18 ＋ BUN/2.8",
+    "2 × 血清Na ＋ 血糖値/10 ＋ BUN/2"]},
+{s:"計算式",n:"血清浸透圧の基準値",a:"275〜288 mOsm/kgH₂O",j:[{lo:275,hi:288,dec:0,u:"mOsm/kgH₂O"}]},
+{s:"計算式",n:"anion gap の計算式",a:"[Na⁺] －（[Cl⁻] ＋ [HCO₃⁻]）",
+ q:["[Na⁺] ＋ [K⁺] －（[Cl⁻] ＋ [HCO₃⁻]）","（[Cl⁻] ＋ [HCO₃⁻]）－ [Na⁺]",
+    "[Na⁺] － [Cl⁻] ＋ [HCO₃⁻]"]},
+{s:"計算式",n:"anion gap の基準値",a:"12 ± 2 mEq/L",q:["10 ± 2 mEq/L","12 ± 4 mEq/L","14 ± 2 mEq/L"]},
+{s:"計算式",n:"GFR の計算式",a:"（Ucr × V / Scr）× 1.73 / A（mL/分）",
+ q:["（Scr × V / Ucr）× 1.73 / A","（Ucr × V / Scr）× A / 1.73","（Ucr / Scr）× 1.73 × A"]},
+{s:"計算式",n:"GFR の正常値",a:"91〜130 mL/分",j:[{lo:91,hi:130,dec:0,u:"mL/分"}]},
+{s:"計算式",n:"A-aDO₂ の計算式",a:"150 －（PaCO₂ / 0.8）－ PaO₂",
+ q:["150 －（PaO₂ / 0.8）－ PaCO₂","100 －（PaCO₂ / 0.8）－ PaO₂","150 －（PaCO₂ × 0.8）－ PaO₂"]},
+{s:"計算式",n:"BUN/Cr が 15 以上となる病態",
+ a:"蛋白過剰摂取，消化管出血，蛋白異化亢進\n（発熱・熱傷・ステロイド），脱水",nq:1},
+{s:"計算式",n:"髄液の産生量と入れ替わり",a:"500 mL/日 産生，1日 3〜4 回 入れ替わる"},
+
+/* ---------- 貧血の分類 ---------- */
+{s:"貧血分類",n:"MCV の計算式",a:"（Ht / RBC）× 10",
+ q:["（Hb / RBC）× 10","（Hb / Ht）× 100","（RBC / Ht）× 10"]},
+{s:"貧血分類",n:"MCH の計算式",a:"（Hb / RBC）× 10",
+ q:["（Ht / RBC）× 10","（Hb / Ht）× 100","（Hb / RBC）× 100"]},
+{s:"貧血分類",n:"MCHC の計算式",a:"（Hb / Ht）× 100",
+ q:["（Hb / RBC）× 10","（Ht / Hb）× 100","（Ht / RBC）× 10"]},
+{s:"貧血分類",n:"MCV による分類（μm³）",a:"小球性 〜80／正球性 80〜100／大球性 100〜"},
+{s:"貧血分類",n:"MCH による分類（pg）",a:"〜28／28〜32／32〜"},
+{s:"貧血分類",n:"MCHC による分類（%）",a:"低色素性 〜31／正色素性 31〜35"},
+
+/* ---------- JCS ---------- */
+{s:"意識",g:"JCS",n:"JCS の分類方式",a:"3-3-9度方式\nⅠ：刺激しないでも覚醒（1桁）\nⅡ：刺激すると覚醒（2桁）\nⅢ：刺激をしても覚醒しない（3桁）",nq:1},
+{s:"意識",g:"JCS",n:"JCS：清明",a:"0",dg:"JCS"},
+{s:"意識",g:"JCS",n:"JCS：意識清明とはいえない",a:"1",dg:"JCS"},
+{s:"意識",g:"JCS",n:"JCS：見当識障害がある",a:"2",dg:"JCS"},
+{s:"意識",g:"JCS",n:"JCS：自分の名前，生年月日が言えない",a:"3",dg:"JCS"},
+{s:"意識",g:"JCS",n:"JCS：普通の呼びかけで容易に開眼",a:"10",dg:"JCS"},
+{s:"意識",g:"JCS",n:"JCS：大きな声または体をゆさぶることにより開眼",a:"20",dg:"JCS"},
+{s:"意識",g:"JCS",n:"JCS：痛み刺激を加えつつ呼びかけを繰り返すと，辛うじて開眼",a:"30",dg:"JCS"},
+{s:"意識",g:"JCS",n:"JCS：痛み刺激に対し，払いのけるような動作をする",a:"100",dg:"JCS"},
+{s:"意識",g:"JCS",n:"JCS：痛み刺激で少し手足を動かしたり，顔をしかめる",a:"200",dg:"JCS"},
+{s:"意識",g:"JCS",n:"JCS：痛み刺激に全く反応しない",a:"300",dg:"JCS"},
+
+/* ---------- GCS ---------- */
+{s:"意識",g:"GCS 開眼機能（E）",n:"GCS 開眼：自然に開眼",a:"E4",dg:"E"},
+{s:"意識",g:"GCS 開眼機能（E）",n:"GCS 開眼：命令すると開眼",a:"E3",dg:"E"},
+{s:"意識",g:"GCS 開眼機能（E）",n:"GCS 開眼：痛みに対し開眼",a:"E2",dg:"E"},
+{s:"意識",g:"GCS 開眼機能（E）",n:"GCS 開眼：開眼しない",a:"E1",dg:"E"},
+{s:"意識",g:"GCS 言語機能（V）",n:"GCS 言語：見当識がある",a:"V5",dg:"V"},
+{s:"意識",g:"GCS 言語機能（V）",n:"GCS 言語：意味のない会話をする",a:"V4",dg:"V"},
+{s:"意識",g:"GCS 言語機能（V）",n:"GCS 言語：意味のない単語を発する",a:"V3",dg:"V"},
+{s:"意識",g:"GCS 言語機能（V）",n:"GCS 言語：単語にならない発声のみ",a:"V2",dg:"V"},
+{s:"意識",g:"GCS 言語機能（V）",n:"GCS 言語：反応なし",a:"V1",dg:"V"},
+{s:"意識",g:"GCS 運動機能（M）",n:"GCS 運動：命令通りにできる",a:"M6",dg:"M"},
+{s:"意識",g:"GCS 運動機能（M）",n:"GCS 運動：痛み刺激の部位がわかる",a:"M5",dg:"M"},
+{s:"意識",g:"GCS 運動機能（M）",n:"GCS 運動：手足をひっこめる",a:"M4",dg:"M"},
+{s:"意識",g:"GCS 運動機能（M）",n:"GCS 運動：病的屈曲",a:"M3",dg:"M"},
+{s:"意識",g:"GCS 運動機能（M）",n:"GCS 運動：伸展反応",a:"M2",dg:"M"},
+{s:"意識",g:"GCS 運動機能（M）",n:"GCS 運動：反応なし",a:"M1",dg:"M"},
+{s:"意識",g:"GCS",n:"GCS の合計点の範囲",a:"3〜15 点",q:["1〜15 点","0〜15 点","3〜14 点"]}
+];
+
+const SECTIONS = ["血液学","生化学","免疫","血ガス","バイタル","計算式","貧血分類","意識"];
+const SECT_TITLE = {血液学:"血液学検査",生化学:"生化学的検査",免疫:"免疫学検査",
+  血ガス:"動脈血ガス分析",バイタル:"バイタルサイン・循環",計算式:"計算式・腎・神経",
+  貧血分類:"貧血の分類（赤血球指数）",意識:"意識レベル（JCS・GCS）"};
+
+/* ---------- 状態 ---------- */
+let mode="flip", active=new Set(SECTIONS), deck=[], idx=0, flipped=false, answered=false;
+let stat={n:0,ok:0}, qcache=null;
+const $ = s=>document.querySelector(s);
+const rnd = n=>Math.floor(Math.random()*n);
+const fmt = (v,d)=> d>0 ? v.toFixed(d) : String(Math.round(v));
+const comma = s=>s.replace(/\B(?=(\d{3})+(?!\d))/g,",");
+const esc = s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+function buildDeck(){
+  deck = DATA.filter(c=>active.has(c.s));
+  if(mode==="judge") deck = deck.filter(c=>c.j);
+  if(mode==="quiz")  deck = deck.filter(c=>!c.nq);
+  if(idx>=deck.length) idx=0;
+  reset();
+}
+function shuffleDeck(){
+  for(let i=deck.length-1;i>0;i--){const k=rnd(i+1);[deck[i],deck[k]]=[deck[k],deck[i]];}
+  idx=0; stat={n:0,ok:0}; reset();
+}
+function reset(){ flipped=false; answered=false; qcache=null; render(); }
+
+/* ---------- 選択肢 ---------- */
+const NUMRE=/(\/?)(\d[\d,]*(?:\.\d+)?)/g;
+function stepOf(text){
+  const nums=[]; let dec=0,m; NUMRE.lastIndex=0;
+  while((m=NUMRE.exec(text))!==null){
+    if(m[1]) continue;
+    const clean=m[2].replace(/,/g,"");
+    nums.push(parseFloat(clean));
+    if(clean.includes(".")) dec=Math.max(dec,clean.split(".")[1].length);
+  }
+  if(!nums.length) return null;
+  const hi=Math.max(...nums), lo=Math.min(...nums);
+  let w=hi-lo; if(w===0) w=Math.abs(hi)*0.3||1;
+  let s=w*0.4;
+  if(s>=1000) s=Math.round(s/100)*100;
+  else if(s>=100) s=Math.round(s/10)*10;
+  else{ const g=Math.pow(10,-dec); s=Math.round(s/g)*g; if(s<g) s=g; }
+  return +s.toFixed(dec+2);
+}
+function perturb(text,d,step){
+  let bad=false;
+  const out=text.replace(NUMRE,(m,slash,num)=>{
+    if(slash) return m;
+    const hasComma=num.includes(",");
+    const clean=num.replace(/,/g,"");
+    const dec=clean.includes(".")?clean.split(".")[1].length:0;
+    let v=+(parseFloat(clean)+d*step).toFixed(dec+2);
+    if(v<0) bad=true;
+    let t=dec>0?v.toFixed(dec):String(Math.round(v));
+    return hasComma?comma(t):t;
+  });
+  return bad?null:out;
+}
+function makeOptions(card){
+  let set=[card.a];
+  if(card.q){ set=set.concat(card.q.slice(0,3)); }
+  else if(card.dg){
+    const pool=DATA.filter(c=>c.dg===card.dg && c.a!==card.a).map(c=>c.a);
+    for(let i=pool.length-1;i>0;i--){const k=rnd(i+1);[pool[i],pool[k]]=[pool[k],pool[i]];}
+    set=set.concat(pool.slice(0,3));
+  }else{
+    const step=stepOf(card.a);
+    if(step){
+      const deltas=[1,-1,2,-2,3,-3,4,-4,5,6,7,8];
+      for(let i=0;i<deltas.length&&set.length<4;i++){
+        const c=perturb(card.a,deltas[i],step);
+        if(c&&!set.includes(c)) set.push(c);
+      }
+    }
+  }
+  while(set.length<4) set.push("該当なし");
+  set=set.slice(0,4);
+  for(let i=set.length-1;i>0;i--){const k=rnd(i+1);[set[i],set[k]]=[set[k],set[i]];}
+  return {opts:set, ans:set.indexOf(card.a)};
+}
+/* ---------- 判定用の値 ---------- */
+function makeCase(card){
+  const r=card.j[rnd(card.j.length)];
+  const unit=r.step?r.step:Math.pow(10,-r.dec);
+  const kinds=["normal","normal"];
+  if(r.hi!=null) kinds.push("high");
+  if(r.lo!=null && r.lo>unit*0.9) kinds.push("low");
+  const kind=kinds[rnd(kinds.length)];
+  const span=(r.hi!=null&&r.lo!=null)?(r.hi-r.lo):(r.hi!=null?r.hi*0.25:r.lo*0.25);
+  let v;
+  if(kind==="normal"){
+    const lo=r.lo!=null?r.lo:Math.max(0,r.hi-span);
+    const hi=r.hi!=null?r.hi:r.lo+span;
+    v=lo+Math.random()*(hi-lo);
+  }else if(kind==="high"){ v=r.hi+span*(0.15+Math.random()*0.9); }
+  else{ v=r.lo-span*(0.15+Math.random()*0.7); if(v<0) v=Math.random()*r.lo*0.4; }
+  if(r.step) v=Math.round(v/r.step)*r.step;
+  v=+fmt(v,r.dec);
+  if(kind==="high"&&!(v>r.hi)) v=+fmt(r.hi+unit,r.dec);
+  if(kind==="low" &&!(v<r.lo)) v=+fmt(r.lo-unit,r.dec);
+  if(kind==="normal"){
+    if(r.lo!=null&&v<r.lo) v=+fmt(r.lo,r.dec);
+    if(r.hi!=null&&v>r.hi) v=+fmt(r.hi,r.dec);
+  }
+  let txt=fmt(v,r.dec);
+  if(v>=1000) txt=comma(txt);
+  return {r,kind,txt:txt+(r.u?" "+r.u:""),label:r.label||""};
+}
+
+/* ---------- 描画 ---------- */
+function render(){
+  const listMode = mode==="list";
+  $("#study").style.display = listMode?"none":"block";
+  $("#listview").style.display = listMode?"block":"none";
+  if(listMode){ renderList(); return; }
+
+  const card=deck[idx];
+  $("#counter").textContent = deck.length?(idx+1)+" / "+deck.length:"0 / 0";
+  $("#progbar").style.width = deck.length?((idx+1)/deck.length*100)+"%":"0";
+  $("#score").textContent = (mode!=="flip"&&stat.n)
+    ? "正答 "+stat.ok+" / "+stat.n+"（"+Math.round(stat.ok/stat.n*100)+"%）":"";
+  const stage=$("#stage");
+  if(!card){ stage.innerHTML='<div class="card"><div class="hint">項目を選んでください</div></div>'; return; }
+  const long = card.n.length>18, longA = card.a.length>22;
+  const head = SECT_TITLE[card.s]+(card.g?"　"+card.g:"");
+
+  if(mode==="flip"){
+    stage.innerHTML='<div class="card flip-area" id="flip">'+
+      '<div class="sect">'+esc(head)+'</div>'+
+      '<div class="term'+(long?" small":"")+'">'+esc(card.n)+'</div>'+
+      (flipped?'<div class="divider"></div><div class="val'+(longA?" small":"")+'">'+esc(card.a)+'</div>'
+              :'<div class="hint">タップ / Space で答えを表示</div>')+'</div>';
+    $("#flip").onclick=()=>{flipped=!flipped;render();};
+  }
+
+  if(mode==="quiz"){
+    if(!qcache) qcache=makeOptions(card);
+    let html='<div class="card"><div class="sect">'+esc(head)+'</div>'+
+      '<div class="term'+(long?" small":"")+'">'+esc(card.n)+'</div>'+
+      '<div class="hint">正しいのはどれ？</div></div><div class="opts">';
+    qcache.opts.forEach((o,i)=>{
+      let cls=""; if(answered) cls=(i===qcache.ans)?" correct":(i===qcache.pick?" wrong":"");
+      html+='<button class="opt'+cls+'" data-i="'+i+'"><span class="k">'+(i+1)+'</span>'+esc(o)+'</button>';
+    });
+    html+='</div><div class="fb '+(answered?(qcache.pick===qcache.ans?"ok":"ng"):"")+'">'+
+      (answered?(qcache.pick===qcache.ans?"正解 ○":"不正解 ×"):"")+'</div>';
+    stage.innerHTML=html;
+    stage.querySelectorAll(".opt").forEach(b=>b.onclick=()=>pick(+b.dataset.i));
+  }
+
+  if(mode==="judge"){
+    if(!qcache) qcache=makeCase(card);
+    const c=qcache;
+    let html='<div class="card"><div class="sect">'+esc(head)+(c.label?"　"+c.label:"")+'</div>'+
+      '<div class="term'+(long?" small":"")+'">'+esc(card.n)+'</div>'+
+      '<div class="val">'+esc(c.txt)+'</div>'+
+      '<div class="hint">'+(answered?"基準値：<b>"+esc(card.a).replace(/\n/g,"　／　")+"</b>":"基準値と比べて？")+'</div></div>'+
+      '<div class="judge">'+['low','normal','high'].map(k=>{
+        const lab=k==="low"?"低い":(k==="normal"?"正常":"高い");
+        let st="";
+        if(answered&&k===c.kind) st=' style="background:var(--ok);color:#fff"';
+        else if(answered&&k===c.pick) st=' style="background:var(--ng);color:#fff"';
+        return '<button class="btn" data-k="'+k+'"'+st+'>'+lab+'</button>';
+      }).join('')+'</div>'+
+      '<div class="fb '+(answered?(c.pick===c.kind?"ok":"ng"):"")+'">'+
+      (answered?(c.pick===c.kind?"正解 ○":"不正解 ×　→　正答："+(c.kind==="low"?"低い":c.kind==="normal"?"正常":"高い")):"")+'</div>';
+    stage.innerHTML=html;
+    stage.querySelectorAll(".judge .btn").forEach(b=>b.onclick=()=>pickJudge(b.dataset.k));
+  }
+}
+function pick(i){ if(answered)return; qcache.pick=i; answered=true; stat.n++; if(i===qcache.ans)stat.ok++; render(); }
+function pickJudge(k){ if(answered)return; qcache.pick=k; answered=true; stat.n++; if(k===qcache.kind)stat.ok++; render(); }
+function move(d){ if(!deck.length)return; idx=(idx+d+deck.length)%deck.length; reset(); }
+
+function renderList(){
+  let html='<div class="note"><b>記憶すべき基準値</b>'+
+    '「医師国家試験出題基準（厚生労働省）」（平成30年版）から記憶すべきものだけを pick up したもの＋'+
+    '臨床問題の試験前にチェックすべき数値・スケール。これら以外の基準値は問題文に記載されます。</div><div class="cols">';
+  SECTIONS.filter(s=>active.has(s)).forEach(s=>{
+    html+='<div class="block"><h2>'+SECT_TITLE[s]+'</h2>';
+    let curG=null;
+    DATA.filter(c=>c.s===s).forEach(c=>{
+      if((c.g||"")!==curG){ curG=c.g||""; if(curG) html+='<div class="g">'+esc(curG)+'</div>'; }
+      html+='<div class="lrow"><span class="nm">'+esc(c.n.replace(/^(JCS|GCS)[^：]*：/,""))+
+            '</span><span class="vl">'+esc(c.a)+'</span></div>';
+    });
+    html+='</div>';
+  });
+  html+='</div>';
+  $("#listview").innerHTML=html;
+}
+
+/* ---------- UI ---------- */
+$("#chips").innerHTML=SECTIONS.map(s=>'<button class="chip on" data-s="'+s+'">'+s+'</button>').join('')
+  +'<button class="chip" data-s="__all">全部</button>';
+$("#chips").onclick=e=>{
+  const b=e.target.closest(".chip"); if(!b)return;
+  if(b.dataset.s==="__all") active=new Set(SECTIONS);
+  else{
+    active.has(b.dataset.s)?active.delete(b.dataset.s):active.add(b.dataset.s);
+    if(!active.size) active=new Set(SECTIONS);
+  }
+  document.querySelectorAll(".chip").forEach(c=>{
+    if(c.dataset.s!=="__all") c.classList.toggle("on",active.has(c.dataset.s));
+  });
+  idx=0; buildDeck();
+};
+$("#tabs").onclick=e=>{
+  const b=e.target.closest("button"); if(!b)return;
+  document.querySelectorAll("#tabs button").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on"); mode=b.dataset.m; idx=0; stat={n:0,ok:0}; buildDeck();
+};
+$("#prev").onclick=()=>move(-1);
+$("#next").onclick=()=>move(1);
+$("#shuffle").onclick=shuffleDeck;
+$("#theme").onclick=()=>{const h=document.documentElement;
+  h.dataset.theme=h.dataset.theme==="dark"?"light":"dark";};
+if(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)
+  document.documentElement.dataset.theme="dark";
+document.addEventListener("keydown",e=>{
+  if(mode==="list")return;
+  if(e.key===" "){e.preventDefault(); if(mode==="flip"){flipped=!flipped;render();} else move(1);}
+  else if(e.key==="ArrowRight"){ (mode==="judge"&&!answered)?pickJudge("high"):move(1); }
+  else if(e.key==="ArrowLeft"){ (mode==="judge"&&!answered)?pickJudge("low"):move(-1); }
+  else if(e.key==="ArrowDown"&&mode==="judge"){e.preventDefault(); if(!answered)pickJudge("normal");}
+  else if(mode==="quiz"&&/^[1-4]$/.test(e.key)) pick(+e.key-1);
+});
+buildDeck();
+</script>
+</body>
+</html>

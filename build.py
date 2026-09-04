@@ -65,9 +65,16 @@ html = head + '\n<script>\nconst CARD_DATA = `\n' + data + '\n`;\n</script>\n' +
 if os.path.isdir(DIST):
     shutil.rmtree(DIST)
 os.makedirs(DIST)
-open(os.path.join(DIST, 'index.html'), 'w', encoding='utf-8').write(html)
-# オフライン配布用に、同じ中身を単一ファイル名でも置いておく
-open(os.path.join(DIST, '予備試験_暗記カード.html'), 'w', encoding='utf-8').write(html)
+# ウェブ版（ブラウザで暗記する画面）は公開を終了した。iOS アプリに一本化。
+# ただしプライバシーポリシーと利用規約は App Store の審査で URL が要るので、
+# static/ の中身はこれまでどおり公開し続ける。
+#
+# 組み立て自体は残してある。手元で内容を確認したいときは PUBLISH_WEB=1 を付ける:
+#     PUBLISH_WEB=1 python3 build.py
+if os.environ.get('PUBLISH_WEB') == '1':
+    open(os.path.join(DIST, 'index.html'), 'w', encoding='utf-8').write(html)
+    open(os.path.join(DIST, '予備試験_暗記カード.html'), 'w', encoding='utf-8').write(html)
+    print('   ⚠️  ウェブ版も出力した（PUBLISH_WEB=1）')
 
 for f in glob.glob('static/*'):
     name = os.path.basename(f)

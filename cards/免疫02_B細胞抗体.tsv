@@ -1,0 +1,64 @@
+免疫学::02 B細胞・抗体	骨髄での B 細胞分化の順序は？	HSC → common lymphoid progenitor → pro-B → pre-B → 未成熟B（IgM+）		B細胞,分化	k9b26316e
+免疫学::02 B細胞・抗体	pro-B 期に起こる遺伝子イベントは？	重鎖の D–J 再構成 → V–DJ 再構成		B細胞,分化,再構成	k5c00969c
+免疫学::02 B細胞・抗体	pre-BCR の構成は？	μ 重鎖 + surrogate light chain（VpreB / λ5）		B細胞,分化,再構成	k0828eec7
+免疫学::02 B細胞・抗体	pre-B 期の意義は？	重鎖の allelic exclusion と増殖		B細胞,分化	k437b3510
+免疫学::02 B細胞・抗体	未成熟 B 細胞で起こる再構成と表現型は？	軽鎖の V–J 再構成、表面 IgM+ IgD−	ここで自己反応性が審査される	B細胞,分化	kc5cddbfb
+免疫学::02 B細胞・抗体	移行期 B 細胞（T1→T2）はどこで何をする？	脾臓で生存選択を受ける	IgM 高 → IgD 増加	B細胞,分化	k56b84592
+免疫学::02 B細胞・抗体	成熟 naive B 細胞の表面 Ig は？	IgM+ IgD+		B細胞,分化,頻出	k78d43128
+免疫学::02 B細胞・抗体	抗原刺激後、B 細胞は何に分化する？	形質芽細胞 → 形質細胞／記憶B細胞	短期IgM応答と胚中心由来の長期応答に分岐	B細胞,分化	k80f4b3f9
+免疫学::02 B細胞・抗体	B 細胞の中枢性寛容の 3 つの機構は？	receptor editing／clonal deletion／anergy	自己反応性未成熟B細胞を骨髄で処理する	B細胞,寛容,頻出	k465ddbf5
+免疫学::02 B細胞・抗体	B 細胞の receptor editing で主に再構成されるのは？	軽鎖	B細胞で特に重要	B細胞,寛容	ka76abecd
+免疫学::02 B細胞・抗体	CD19 はどんな marker？	B 細胞系統 marker。pro-B 以降で発現		B細胞,marker	k7cc64ac0
+免疫学::02 B細胞・抗体	CD20 の発現時期と臨床的意義は？	pre-B 後期〜成熟 B に発現、形質細胞では消失。B 細胞性腫瘍の治療標的	rituximab の標的	B細胞,marker,臨床	k581f4c3e
+免疫学::02 B細胞・抗体	CD21（CR2）の 3 つの役割は？	C3d 受容体、BCR 補助受容体、EBV 受容体		B細胞,marker,頻出	k712c845f
+免疫学::02 B細胞・抗体	CD40 はどの細胞にあり、何と結合する？	B 細胞上にあり、活性化 T 細胞の CD40L（CD154）と結合	CD40はB細胞、CD40LはT細胞	B細胞,marker,頻出	kf4a40150
+免疫学::02 B細胞・抗体	CD79a/b（Igα/Igβ）の働きは？	ITAM を介して BCR シグナルを伝達する		B細胞,marker,BCR	k0050ac95
+免疫学::02 B細胞・抗体	CD138 は何の marker？	形質細胞 marker		B細胞,marker	k3c1fcfc2
+免疫学::02 B細胞・抗体	形質細胞の表面表現型の特徴は？	抗体分泌↑、表面 BCR・CD20 は低下（消失）		B細胞,marker	k55568e35
+免疫学::02 B細胞・抗体	BCR 複合体の構成は？	膜型 Ig（抗原認識）+ CD79a/b（ITAM シグナル）		B細胞,BCR	k7b6cea46
+免疫学::02 B細胞・抗体	BCR と TCR の抗原認識の違いは？	BCR は天然抗原を直接認識、TCR は peptide–MHC 複合体を認識		B細胞,BCR,頻出	k424a8ef6
+免疫学::02 B細胞・抗体	BCR シグナル伝達の経路は？	抗原架橋 → Lyn → Syk → BLNK → PLCγ2 → IP₃/DAG → Ca²⁺・PKCβ → NF-κB/NFAT/AP-1		B細胞,BCR,シグナル	kd84caa1b
+免疫学::02 B細胞・抗体	BCR 補助受容体複合体の構成と働きは？	CD21–CD19–CD81。C3d が付着した抗原が BCR と同時刺激し、活性化閾値を下げる		B細胞,BCR,補体	kc21e64c0
+免疫学::02 B細胞・抗体	B 細胞が T 細胞 help を受ける流れは？	BCR で抗原を取り込み → peptide 化 → MHC II 提示 → Tfh が認識 → CD40–CD40L + IL-21 など		B細胞,T細胞help,頻出	k9b539f63
+免疫学::02 B細胞・抗体	自己抗体産生における TLR9 の関与は？	BCR が dsDNA–IgG 複合体を取り込み、endosome の TLR9 が CpG DNA を認識して B 細胞活性化を増幅する		B細胞,自己免疫	kf8334be7
+免疫学::02 B細胞・抗体	CD4 T 細胞・CD8 T 細胞が認識する HLA class は？	CD4 T 細胞 ↔ HLA-DP/DQ/DR（class II）、CD8 T 細胞 ↔ HLA-A/B/C（class I）		B細胞,HLA,頻出	kb807d81e
+免疫学::02 B細胞・抗体	NK 細胞の表面 marker と、抑制シグナルの受け方は？	CD3− CD56+。標的細胞の HLA-E を CD94/NKG2A で認識して抑制シグナルを受ける		NK細胞,marker	k1008758b
+免疫学::02 B細胞・抗体	CD16 とは何か？	NK 細胞の FcγRIII。ADCC に関与する		NK細胞,marker	ka04cc17f
+免疫学::02 B細胞・抗体	濾胞外反応の特徴は？	早期・短命の形質芽細胞、主に低親和性 IgM		B細胞,胚中心	kbb3776d7
+免疫学::02 B細胞・抗体	胚中心形成に中心的な因子は？	Tfh（CXCR5+）、CD40–CD40L、IL-21		B細胞,胚中心,頻出	k5e59a2d0
+免疫学::02 B細胞・抗体	胚中心の dark zone で起こることは？	centroblast の増殖と、AID 依存性の somatic hypermutation（V 領域）		B細胞,胚中心	k30446747
+免疫学::02 B細胞・抗体	胚中心の light zone で起こることは？	FDC 上の抗原獲得と Tfh help により高親和性 clone を選択。失敗した clone は apoptosis		B細胞,胚中心	kfa84c69a
+免疫学::02 B細胞・抗体	somatic hypermutation の変化部位と目的は？	変化部位は V 領域。親和性の多様化と選択が目的。AID 依存		B細胞,胚中心,AID,頻出	k186acf77
+免疫学::02 B細胞・抗体	class switch recombination の変化部位と目的は？	変化部位は重鎖 C 領域（μ→γ/α/ε）。effector 機能の変更が目的。AID 依存で V 領域は原則維持	抗原特異性は変わらない	B細胞,胚中心,AID,頻出	kcd138874
+免疫学::02 B細胞・抗体	胚中心反応の最終産物は？	長寿命形質細胞（主に骨髄）・記憶 B 細胞・高親和性 class-switched 抗体		B細胞,胚中心	kca084ec0
+免疫学::02 B細胞・抗体	長寿命形質細胞の主な生存場所は？	骨髄		B細胞,胚中心,頻出	k52a7bc46
+免疫学::02 B細胞・抗体	ワクチンは能動免疫・受動免疫のどちら？	能動免疫（記憶も形成される）		免疫,能動受動,頻出	k6932545f
+免疫学::02 B細胞・抗体	γ-グロブリン・抗血清・母乳による免疫はどちら？	受動免疫（原則として記憶は形成されない）		免疫,能動受動,頻出	kf2f69d23
+免疫学::02 B細胞・抗体	IgM・IgG・IgA・IgE・IgD の重鎖はそれぞれ？	IgM=μ、IgG=γ、IgA=α、IgE=ε、IgD=δ		抗体,クラス,頻出	k98bfee55
+免疫学::02 B細胞・抗体	IgM の構造は？	分泌型は五量体＋J 鎖、BCR としては単量体		抗体,IgM	k4b7a6a94
+免疫学::02 B細胞・抗体	IgA の構造は？	血清では単量体、分泌型は二量体＋J 鎖＋secretory component		抗体,IgA,頻出	kbec557da
+免疫学::02 B細胞・抗体	一次応答で最初に出る抗体は？	IgM		抗体,IgM,頻出	kc06b52b3
+免疫学::02 B細胞・抗体	古典経路の補体活性化が最も効率的な抗体は？	IgM		抗体,IgM,補体,頻出	k877f4f8e
+免疫学::02 B細胞・抗体	血中に最も多い抗体は？	IgG		抗体,IgG,頻出	kf30c7dc7
+免疫学::02 B細胞・抗体	IgG の主な機能は？	中和・オプソニン化・補体活性化・ADCC。二次応答の中心		抗体,IgG	kf946229f
+免疫学::02 B細胞・抗体	胎盤を通過する抗体と、その受容体は？	IgG のみ。FcRn を介して通過する	IgM は五量体で通過できない	抗体,IgG,胎盤,頻出	k6fa3777d
+免疫学::02 B細胞・抗体	IgA の主な分布は？	粘膜・唾液・涙・母乳		抗体,IgA	k560662e8
+免疫学::02 B細胞・抗体	分泌型 IgA が上皮を通過する受容体は？	pIgR（polymeric Ig receptor）		抗体,IgA	k78f198d3
+免疫学::02 B細胞・抗体	IgE はどこに存在し、何に関与する？	mast cell／basophil 表面。I 型アレルギー・アナフィラキシー・蠕虫防御		抗体,IgE,頻出	k0362004f
+免疫学::02 B細胞・抗体	IgE が高親和性で結合する受容体は？	FcεRI		抗体,IgE	k75db9716
+免疫学::02 B細胞・抗体	IgD はどこにあり、何をする？	成熟 naive B 細胞表面で IgM とともに BCR を構成。血中濃度は低いが検出可能		抗体,IgD	k0bd44327
+免疫学::02 B細胞・抗体	抗体の血清濃度の順は？	IgG > IgA > IgM > IgD > IgE		抗体,クラス,頻出	k10f44da3
+免疫学::02 B細胞・抗体	IgA は古典経路の補体を活性化する？	通常は活性化しない		抗体,IgA,補体	k0a296f17
+免疫学::02 B細胞・抗体	isotype（アイソタイプ）とは？	重鎖 C 領域の違いによる分類。IgM/G/A/E/D の 5 種類		抗体,構造,頻出	keb7cefa3
+免疫学::02 B細胞・抗体	allotype（アロタイプ）とは？	同一 species 内の遺伝的差異。主に C 領域		抗体,構造	k1a05e65d
+免疫学::02 B細胞・抗体	idiotype（イディオタイプ）とは？	V 領域・抗原結合部位に固有の抗原決定基	重鎖C領域にはない	抗体,構造,頻出	k54aea628
+免疫学::02 B細胞・抗体	血液型不適合妊娠で病原性をもつ抗体と、新生児の検査所見は？	IgG。新生児赤血球は直接 Coombs 試験陽性	Rh 予防には抗 D 免疫グロブリン	抗体,IgG,臨床,頻出	k7d6e6de4
+免疫学::02 B細胞・抗体	抗体欠損症で易感染となる病原体は？	莢膜菌・化膿菌、enterovirus など	細胞性免疫主体の病原体では影響が相対的に小さい	抗体,臨床	kae08ee93
+免疫学::02 B細胞・抗体	キメラ抗体の構成と語尾は？	非ヒト V 領域 + ヒト C 領域。語尾は -ximab	例：infliximab	抗体医薬,頻出	k0caf4946
+免疫学::02 B細胞・抗体	マウス抗体の語尾は？	-momab	例：muromomab	抗体医薬	kc4d8cb46
+免疫学::02 B細胞・抗体	ヒト化抗体の構成と語尾は？	主にヒト由来で CDR が非ヒト由来。語尾は -zumab	例：bevacizumab	抗体医薬,頻出	k257f3667
+免疫学::02 B細胞・抗体	eculizumab の標的と適応は？	C5。PNH・aHUS		抗体医薬,臨床	k37cf17e6
+免疫学::02 B細胞・抗体	rituximab の標的と適応は？	CD20。B 細胞性リンパ腫など		抗体医薬,臨床,頻出	k666ed878
+免疫学::02 B細胞・抗体	nivolumab など免疫チェックポイント阻害薬の標的は？	PD-1。各種悪性腫瘍		抗体医薬,臨床	k8c0c0f6e
+免疫学::02 B細胞・抗体	infliximab の標的と適応は？	TNF-α。Crohn 病・関節リウマチなど		抗体医薬,臨床	k66499610
+免疫学::02 B細胞・抗体	omalizumab の標的と適応は？	IgE。気管支喘息・慢性蕁麻疹		抗体医薬,臨床	k6d312f30

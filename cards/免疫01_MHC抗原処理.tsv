@@ -1,47 +1,47 @@
-免疫学::01 MHC・抗原処理	MHC class I に対応する HLA 分子は？	HLA-A / HLA-B / HLA-C	非古典的 class I：HLA-E / F / G	MHC,構造
-免疫学::01 MHC・抗原処理	MHC class II に対応する HLA 分子は？	HLA-DP / HLA-DQ / HLA-DR	professional APC に発現	MHC,構造
-免疫学::01 MHC・抗原処理	MHC class I の分子構造は？	α重鎖（α1・α2・α3）＋ β₂-microglobulin	β₂m は非 MHC 遺伝子産物	MHC,構造
-免疫学::01 MHC・抗原処理	MHC class II の分子構造は？	α鎖 ＋ β鎖（いずれも膜貫通型）	class I と違い β₂m を含まない	MHC,構造
-免疫学::01 MHC・抗原処理	MHC class I のペプチド結合溝を形成するドメインと溝の特徴は？	α1＋α2 が形成し、両端が閉じる → ペプチド長は 8–10 aa	閉じる＝短いペプチドしか載らない	MHC,構造
-免疫学::01 MHC・抗原処理	MHC class II のペプチド結合溝を形成するドメインと溝の特徴は？	α1＋β1 が形成し、両端が開く → ペプチド長は 13–25 aa	開く＝長いペプチドが載る	MHC,構造
-免疫学::01 MHC・抗原処理	CD8 が結合する MHC のドメインは？	MHC class I の α3 domain	CD8 は CTL の co-receptor	MHC,T細胞
-免疫学::01 MHC・抗原処理	CD4 が結合する MHC のドメインは？	MHC class II の β2 domain	CD4 は helper T の co-receptor	MHC,T細胞
-免疫学::01 MHC・抗原処理	MHC class I を発現する細胞は？	ほぼすべての有核細胞	例外に注意（赤血球）	MHC,発現
-免疫学::01 MHC・抗原処理	MHC class II を発現する細胞は？	professional APC：樹状細胞・マクロファージ・B細胞	IFN-γ で他の細胞にも誘導され得る	MHC,発現
-免疫学::01 MHC・抗原処理	MHC class I も II も発現しない血球は？	成熟赤血球（無核のため I(−)・II(−)）	頻出のひっかけ	MHC,発現,頻出
-免疫学::01 MHC・抗原処理	無核であるのに MHC class I を発現する血球は？	血小板（MHC class I (+)）	HLA 適合血小板輸血の根拠	MHC,発現,頻出
-免疫学::01 MHC・抗原処理	polygenic（多遺伝子性）とは？	A/B/C、DP/DQ/DR など複数の遺伝子座をもつこと	polymorphic と区別する	MHC,遺伝
-免疫学::01 MHC・抗原処理	polymorphic（遺伝子多型）とは？	各遺伝子座に多数の allele が存在すること	class I・II 共通の特徴	MHC,遺伝
-免疫学::01 MHC・抗原処理	codominant（共優性）とは？	父由来・母由来の HLA allele を両方とも発現すること	F1・移植問題の基礎	MHC,遺伝
-免疫学::01 MHC・抗原処理	MHC class I / II と抗原処理分子の発現を増強するサイトカインは？	IFN-γ（一般細胞にも MHC class II を誘導し得る）	immunoproteasome も誘導	MHC,発現
-免疫学::01 MHC・抗原処理	内因性抗原（ウイルス・腫瘍・細胞質タンパク）の処理・提示経路を順に述べよ	① 細胞質タンパク → ② ubiquitin で標識 → ③ proteasome / immunoproteasome で分解 → ④ TAP1/2 で ER へ輸送 → ⑤ ERAP で trim → ⑥ α重鎖＋β₂m と組立 → ⑦ tapasin・calreticulin・ERp57 で loading → ⑧ Golgi 経由で細胞表面 → ⑨ CD8⁺ CTL が認識	class I 経路	抗原処理,classI
-免疫学::01 MHC・抗原処理	外因性抗原（細菌・取り込まれたタンパク）の処理・提示経路を順に述べよ	① phagocytosis / endocytosis / BCR で取り込み → ② endosome / lysosome で分解 → ③ MHC II α/β鎖を ER で合成 → ④ invariant chain（Ii / CD74）が溝を保護 → ⑤ Ii 分解後 CLIP が残る → ⑥ HLA-DM が CLIP を除去 → ⑦ 抗原ペプチドを loading（HLA-DO が DM を調節）→ ⑧ 細胞表面へ → ⑨ CD4⁺ Th が認識	class II 経路	抗原処理,classII
-免疫学::01 MHC・抗原処理	TAP1/2 の役割は？	細胞質のペプチドを ER 内腔へ輸送する	class I 経路。欠損で class I 発現低下	抗原処理,classI
-免疫学::01 MHC・抗原処理	ERAP の役割は？	ER 内でペプチドの N 末端を trim し、class I に適した 8–10 aa に調整する	aminopeptidase	抗原処理,classI
-免疫学::01 MHC・抗原処理	MHC class I の peptide loading complex を構成するシャペロンは？	tapasin・calreticulin・ERp57	loading の安定化	抗原処理,classI
-免疫学::01 MHC・抗原処理	invariant chain（Ii / CD74）の役割は？	ER で新生 MHC class II の溝を塞ぎ、内因性ペプチドの結合を防ぐ	class II 経路の要	抗原処理,classII
-免疫学::01 MHC・抗原処理	CLIP とは何か？	invariant chain が分解された後に MHC class II の溝に残る断片	class II-associated invariant chain peptide	抗原処理,classII
-免疫学::01 MHC・抗原処理	CLIP を除去して抗原ペプチドと交換する分子は？	HLA-DM	非古典的 MHC II 分子	抗原処理,classII
-免疫学::01 MHC・抗原処理	HLA-DM の働きを調節する分子は？	HLA-DO	B細胞・胸腺髄質で発現	抗原処理,classII
-免疫学::01 MHC・抗原処理	cross-presentation（交差提示）とは？	外因性抗原を MHC class I に載せて提示する機構。樹状細胞が naive CD8⁺ T細胞を priming できる	原則（外因性→II）の例外	抗原処理,例外
-免疫学::01 MHC・抗原処理	autophagy-mediated presentation とは？	細胞質（内因性）成分を MHC class II に載せて CD4⁺ T細胞へ提示する機構	原則（内因性→I）の例外	抗原処理,例外
-免疫学::01 MHC・抗原処理	脂質抗原を提示する分子は？	CD1（NKT細胞などが認識）	MHC 様分子、β₂m と会合	抗原処理,例外
-免疫学::01 MHC・抗原処理	TCR が認識するものは？	peptide–MHC 複合体（遊離抗原は直接認識しない）	MHC 依存	T細胞,認識
-免疫学::01 MHC・抗原処理	BCR・抗体が認識するものは？	天然構造（立体構造）の抗原そのもの。MHC 非依存	T細胞との決定的な違い	T細胞,認識
-免疫学::01 MHC・抗原処理	CAR（chimeric antigen receptor）の抗原認識は MHC 依存か？	MHC 非依存。細胞表面抗原を直接認識する	CAR-T 療法の原理	T細胞,認識
-免疫学::01 MHC・抗原処理	MHC restriction（MHC 拘束性）とは？	T細胞が「自己 MHC ＋ 特定ペプチド」の組合せを認識すること。胸腺の正の選択で成立する	MHC I 認識型→CD8、MHC II 認識型→CD4	T細胞,認識
-免疫学::01 MHC・抗原処理	分化する環境によって抗原を MHC 拘束性に認識する様式が変わる細胞は？	T細胞（胸腺の環境の MHC で決まる）	2019年 第36問	T細胞,頻出
-免疫学::01 MHC・抗原処理	naive T細胞活性化に必要な Signal 1 と Signal 2 は？	Signal 1：TCR – peptide/MHC　Signal 2：B7-1/B7-2（CD80/86）– CD28	詳細は第02モジュール	T細胞,活性化
-免疫学::01 MHC・抗原処理	共刺激（Signal 2）を受けずに Signal 1 のみを受けた T細胞はどうなる？	anergy（アナジー、不応答）に陥る	末梢性トレランスの機構	T細胞,活性化
-免疫学::01 MHC・抗原処理	T細胞の活性化を抑制する代表的分子は？	CTLA-4（CD152）、PD-1 / PD-L1	CD28・OX40・CD40L は促進側	T細胞,頻出
-免疫学::01 MHC・抗原処理	missing-self 仮説とは？	標的細胞の MHC class I が低下・欠失すると NK の抑制シグナルが消え、NK が攻撃するという考え方	ウイルス感染・腫瘍で起こる	NK
-免疫学::01 MHC・抗原処理	NK 細胞の抑制性受容体とそのリガンドは？	KIR — MHC class I、CD94/NKG2A — HLA-E	正常細胞では抑制がかかる	NK
-免疫学::01 MHC・抗原処理	HLA-E は何を提示し、どの受容体に結合するか？	MHC class I の leader peptide を提示し、NK の CD94/NKG2A に結合する	非古典的 class I	NK,頻出
-免疫学::01 MHC・抗原処理	NKG2D のリガンドは？	MICA / MICB などの stress ligand（活性化シグナル）	ストレス・傷害細胞で発現	NK
-免疫学::01 MHC・抗原処理	NK 細胞にとって最も良い標的細胞の状態は？	ストレス抗原(＋) かつ MHC class I(−)　＝ 活性化↑・抑制↓	2018年 第32問	NK,頻出
-免疫学::01 MHC・抗原処理	CD3⁻ CD56⁺ の細胞は何か。相互作用で確認すべき分子は？	NK 細胞。相手側の HLA-E / MHC class I を確認する	2019年 第35問	NK,頻出
-免疫学::01 MHC・抗原処理	「MHC class II が提示するペプチドは class I より短い」は正しいか？	誤り。class I が 8–10 aa と短く、class II が 13–25 aa と長い	2018年 第31問のひっかけ	頻出
-免疫学::01 MHC・抗原処理	MHC class I と class II の共通点は？	polygenic であること、polymorphic（遺伝子多型）であること	発現細胞・CD4/CD8 対応・ペプチド長は異なる	頻出
-免疫学::01 MHC・抗原処理	MHC class I の発現が低下すると CTL と NK はそれぞれどうなるか？	CTL：認識↓（攻撃できない）　NK：攻撃↑（missing-self）	腫瘍の免疫逃避と NK	頻出,NK
-免疫学::01 MHC・抗原処理	CD8 陽性 T細胞がウイルス抗原断片を認識する際の co-receptor は？	CD8（MHC class I の α3 domain に結合）	CD2・CD40・CD90 は co-receptor ではない	頻出,T細胞
-免疫学::01 MHC・抗原処理	ヒト CD4 陽性 T細胞が認識する主要組織適合抗原は？	HLA-DR（MHC class II）	HLA-A/B/C は class I、HLA-E は非古典的 class I	頻出,T細胞
+免疫学::01 MHC・抗原処理	MHC class I に対応する HLA 分子は？	HLA-A / HLA-B / HLA-C	非古典的 class I：HLA-E / F / G	MHC,構造	1n5ii68
+免疫学::01 MHC・抗原処理	MHC class II に対応する HLA 分子は？	HLA-DP / HLA-DQ / HLA-DR	professional APC に発現	MHC,構造	1t296pl
+免疫学::01 MHC・抗原処理	MHC class I の分子構造は？	α重鎖（α1・α2・α3）＋ β₂-microglobulin	β₂m は非 MHC 遺伝子産物	MHC,構造	14n0jtt
+免疫学::01 MHC・抗原処理	MHC class II の分子構造は？	α鎖 ＋ β鎖（いずれも膜貫通型）	class I と違い β₂m を含まない	MHC,構造	17dcyca
+免疫学::01 MHC・抗原処理	MHC class I のペプチド結合溝を形成するドメインと溝の特徴は？	α1＋α2 が形成し、両端が閉じる → ペプチド長は 8–10 aa	閉じる＝短いペプチドしか載らない	MHC,構造	1kkh79b
+免疫学::01 MHC・抗原処理	MHC class II のペプチド結合溝を形成するドメインと溝の特徴は？	α1＋β1 が形成し、両端が開く → ペプチド長は 13–25 aa	開く＝長いペプチドが載る	MHC,構造	14x7g8a
+免疫学::01 MHC・抗原処理	CD8 が結合する MHC のドメインは？	MHC class I の α3 domain	CD8 は CTL の co-receptor	MHC,T細胞	1ke8s1h
+免疫学::01 MHC・抗原処理	CD4 が結合する MHC のドメインは？	MHC class II の β2 domain	CD4 は helper T の co-receptor	MHC,T細胞	16td9ht
+免疫学::01 MHC・抗原処理	MHC class I を発現する細胞は？	ほぼすべての有核細胞	例外に注意（赤血球）	MHC,発現	1ia18sa
+免疫学::01 MHC・抗原処理	MHC class II を発現する細胞は？	professional APC：樹状細胞・マクロファージ・B細胞	IFN-γ で他の細胞にも誘導され得る	MHC,発現	1gkvd79
+免疫学::01 MHC・抗原処理	MHC class I も II も発現しない血球は？	成熟赤血球（無核のため I(−)・II(−)）	頻出のひっかけ	MHC,発現,頻出	1l1idge
+免疫学::01 MHC・抗原処理	無核であるのに MHC class I を発現する血球は？	血小板（MHC class I (+)）	HLA 適合血小板輸血の根拠	MHC,発現,頻出	g28m2r
+免疫学::01 MHC・抗原処理	polygenic（多遺伝子性）とは？	A/B/C、DP/DQ/DR など複数の遺伝子座をもつこと	polymorphic と区別する	MHC,遺伝	klglb4
+免疫学::01 MHC・抗原処理	polymorphic（遺伝子多型）とは？	各遺伝子座に多数の allele が存在すること	class I・II 共通の特徴	MHC,遺伝	ktz4iy
+免疫学::01 MHC・抗原処理	codominant（共優性）とは？	父由来・母由来の HLA allele を両方とも発現すること	F1・移植問題の基礎	MHC,遺伝	7zt7n2
+免疫学::01 MHC・抗原処理	MHC class I / II と抗原処理分子の発現を増強するサイトカインは？	IFN-γ（一般細胞にも MHC class II を誘導し得る）	immunoproteasome も誘導	MHC,発現	12ai714
+免疫学::01 MHC・抗原処理	内因性抗原（ウイルス・腫瘍・細胞質タンパク）の処理・提示経路を順に述べよ	① 細胞質タンパク → ② ubiquitin で標識 → ③ proteasome / immunoproteasome で分解 → ④ TAP1/2 で ER へ輸送 → ⑤ ERAP で trim → ⑥ α重鎖＋β₂m と組立 → ⑦ tapasin・calreticulin・ERp57 で loading → ⑧ Golgi 経由で細胞表面 → ⑨ CD8⁺ CTL が認識	class I 経路	抗原処理,classI	p9wvf8
+免疫学::01 MHC・抗原処理	外因性抗原（細菌・取り込まれたタンパク）の処理・提示経路を順に述べよ	① phagocytosis / endocytosis / BCR で取り込み → ② endosome / lysosome で分解 → ③ MHC II α/β鎖を ER で合成 → ④ invariant chain（Ii / CD74）が溝を保護 → ⑤ Ii 分解後 CLIP が残る → ⑥ HLA-DM が CLIP を除去 → ⑦ 抗原ペプチドを loading（HLA-DO が DM を調節）→ ⑧ 細胞表面へ → ⑨ CD4⁺ Th が認識	class II 経路	抗原処理,classII	gvrhsp
+免疫学::01 MHC・抗原処理	TAP1/2 の役割は？	細胞質のペプチドを ER 内腔へ輸送する	class I 経路。欠損で class I 発現低下	抗原処理,classI	taf9q5
+免疫学::01 MHC・抗原処理	ERAP の役割は？	ER 内でペプチドの N 末端を trim し、class I に適した 8–10 aa に調整する	aminopeptidase	抗原処理,classI	14ypyp2
+免疫学::01 MHC・抗原処理	MHC class I の peptide loading complex を構成するシャペロンは？	tapasin・calreticulin・ERp57	loading の安定化	抗原処理,classI	1fgm99s
+免疫学::01 MHC・抗原処理	invariant chain（Ii / CD74）の役割は？	ER で新生 MHC class II の溝を塞ぎ、内因性ペプチドの結合を防ぐ	class II 経路の要	抗原処理,classII	1dav7sn
+免疫学::01 MHC・抗原処理	CLIP とは何か？	invariant chain が分解された後に MHC class II の溝に残る断片	class II-associated invariant chain peptide	抗原処理,classII	qpr0n7
+免疫学::01 MHC・抗原処理	CLIP を除去して抗原ペプチドと交換する分子は？	HLA-DM	非古典的 MHC II 分子	抗原処理,classII	i6npql
+免疫学::01 MHC・抗原処理	HLA-DM の働きを調節する分子は？	HLA-DO	B細胞・胸腺髄質で発現	抗原処理,classII	wzigon
+免疫学::01 MHC・抗原処理	cross-presentation（交差提示）とは？	外因性抗原を MHC class I に載せて提示する機構。樹状細胞が naive CD8⁺ T細胞を priming できる	原則（外因性→II）の例外	抗原処理,例外	gdzi1n
+免疫学::01 MHC・抗原処理	autophagy-mediated presentation とは？	細胞質（内因性）成分を MHC class II に載せて CD4⁺ T細胞へ提示する機構	原則（内因性→I）の例外	抗原処理,例外	iy0c2v
+免疫学::01 MHC・抗原処理	脂質抗原を提示する分子は？	CD1（NKT細胞などが認識）	MHC 様分子、β₂m と会合	抗原処理,例外	9hs2e7
+免疫学::01 MHC・抗原処理	TCR が認識するものは？	peptide–MHC 複合体（遊離抗原は直接認識しない）	MHC 依存	T細胞,認識	1bgjckj
+免疫学::01 MHC・抗原処理	BCR・抗体が認識するものは？	天然構造（立体構造）の抗原そのもの。MHC 非依存	T細胞との決定的な違い	T細胞,認識	1ta7h0c
+免疫学::01 MHC・抗原処理	CAR（chimeric antigen receptor）の抗原認識は MHC 依存か？	MHC 非依存。細胞表面抗原を直接認識する	CAR-T 療法の原理	T細胞,認識	1nhyhp9
+免疫学::01 MHC・抗原処理	MHC restriction（MHC 拘束性）とは？	T細胞が「自己 MHC ＋ 特定ペプチド」の組合せを認識すること。胸腺の正の選択で成立する	MHC I 認識型→CD8、MHC II 認識型→CD4	T細胞,認識	16dynku
+免疫学::01 MHC・抗原処理	分化する環境によって抗原を MHC 拘束性に認識する様式が変わる細胞は？	T細胞（胸腺の環境の MHC で決まる）	2019年 第36問	T細胞,頻出	ww63fc
+免疫学::01 MHC・抗原処理	naive T細胞活性化に必要な Signal 1 と Signal 2 は？	Signal 1：TCR – peptide/MHC　Signal 2：B7-1/B7-2（CD80/86）– CD28	詳細は第02モジュール	T細胞,活性化	1qt6cqk
+免疫学::01 MHC・抗原処理	共刺激（Signal 2）を受けずに Signal 1 のみを受けた T細胞はどうなる？	anergy（アナジー、不応答）に陥る	末梢性トレランスの機構	T細胞,活性化	1r205jj
+免疫学::01 MHC・抗原処理	T細胞の活性化を抑制する代表的分子は？	CTLA-4（CD152）、PD-1 / PD-L1	CD28・OX40・CD40L は促進側	T細胞,頻出	11diopr
+免疫学::01 MHC・抗原処理	missing-self 仮説とは？	標的細胞の MHC class I が低下・欠失すると NK の抑制シグナルが消え、NK が攻撃するという考え方	ウイルス感染・腫瘍で起こる	NK	1sbt8di
+免疫学::01 MHC・抗原処理	NK 細胞の抑制性受容体とそのリガンドは？	KIR — MHC class I、CD94/NKG2A — HLA-E	正常細胞では抑制がかかる	NK	exz0b4
+免疫学::01 MHC・抗原処理	HLA-E は何を提示し、どの受容体に結合するか？	MHC class I の leader peptide を提示し、NK の CD94/NKG2A に結合する	非古典的 class I	NK,頻出	ao08fr
+免疫学::01 MHC・抗原処理	NKG2D のリガンドは？	MICA / MICB などの stress ligand（活性化シグナル）	ストレス・傷害細胞で発現	NK	knfyxx
+免疫学::01 MHC・抗原処理	NK 細胞にとって最も良い標的細胞の状態は？	ストレス抗原(＋) かつ MHC class I(−)　＝ 活性化↑・抑制↓	2018年 第32問	NK,頻出	gm30zt
+免疫学::01 MHC・抗原処理	CD3⁻ CD56⁺ の細胞は何か。相互作用で確認すべき分子は？	NK 細胞。相手側の HLA-E / MHC class I を確認する	2019年 第35問	NK,頻出	lvb4um
+免疫学::01 MHC・抗原処理	「MHC class II が提示するペプチドは class I より短い」は正しいか？	誤り。class I が 8–10 aa と短く、class II が 13–25 aa と長い	2018年 第31問のひっかけ	頻出	1x235ht
+免疫学::01 MHC・抗原処理	MHC class I と class II の共通点は？	polygenic であること、polymorphic（遺伝子多型）であること	発現細胞・CD4/CD8 対応・ペプチド長は異なる	頻出	4qhl8
+免疫学::01 MHC・抗原処理	MHC class I の発現が低下すると CTL と NK はそれぞれどうなるか？	CTL：認識↓（攻撃できない）　NK：攻撃↑（missing-self）	腫瘍の免疫逃避と NK	頻出,NK	sl6pax
+免疫学::01 MHC・抗原処理	CD8 陽性 T細胞がウイルス抗原断片を認識する際の co-receptor は？	CD8（MHC class I の α3 domain に結合）	CD2・CD40・CD90 は co-receptor ではない	頻出,T細胞	15q0tdl
+免疫学::01 MHC・抗原処理	ヒト CD4 陽性 T細胞が認識する主要組織適合抗原は？	HLA-DR（MHC class II）	HLA-A/B/C は class I、HLA-E は非古典的 class I	頻出,T細胞	15j5lyi

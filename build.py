@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """予備試験 暗記カード — ビルドスクリプト
 
-  cards/*.tsv            … カード原稿（デッキ ⇥ 表 ⇥ 裏 ⇥ メモ ⇥ タグ）
+  cards/*.tsv            … カード原稿（デッキ ⇥ 表 ⇥ 裏 ⇥ メモ ⇥ タグ ⇥ id）
   build/part1_head.html  … HTML の <head> と骨格
   build/part2_script.html… アプリ本体の JavaScript
   static/                … manifest / sw.js / アイコン
@@ -26,22 +26,34 @@ for f in files:
         l = l.rstrip('\n')
         if not l.strip() or l.lstrip().startswith('#'):
             continue
-        if len(l.split('\t')) != 5:
+        if len(l.split('\t')) not in (5, 6):
             bad.append('%s:%d 列数=%d' % (f, i, len(l.split('\t'))))
         lines.append(l)
 if bad:
-    raise SystemExit('列数が5でない行があります:\n  ' + '\n  '.join(bad[:15]))
+    raise SystemExit('列数が5でも6でもない行があります:\n  ' + '\n  '.join(bad[:15]))
 
 data = '\n'.join(lines)
 for ch in ('`', '${', '\\'):
     if ch in data:
         raise SystemExit('テンプレートリテラルを壊す文字が含まれています: %r' % ch)
 
-# カード ID は「科目（デッキ最上位）＋表の文言」。重複すると進捗が混ざる。
-dup = [k for k, v in collections.Counter(
-    (l.split('\t')[0].split('::')[0], l.split('\t')[1]) for l in lines).items() if v > 1]
+# カード ID は 6 列目に固定して書いてある（Tools/assign_ids.py が振る）。
+# 表の文言を直しても id は変わらないので、記憶曲線は残る。
+# 6 列目が無い古い行だけ、以前と同じ「科目＋表」で判定しておく。
+def _key(l):
+    p = l.split('\t')
+    return p[5].strip() if len(p) >= 6 and p[5].strip() else (p[0].split('::')[0], p[1])
+
+dup = [k for k, v in collections.Counter(_key(l) for l in lines).items() if v > 1]
 if dup:
-    raise SystemExit('ID衝突（科目＋表が重複）:\n  ' + '\n  '.join('%s / %s' % d for d in dup[:10]))
+    raise SystemExit('ID衝突:\n  ' + '\n  '.join(str(d) for d in dup[:10]))
+
+noid = [l.split('\t')[1][:30] for l in lines
+        if len(l.split('\t')) < 6 or not l.split('\t')[5].strip()]
+if noid:
+    print('⚠️  id 列が空の行が %d 件あります（Tools/assign_ids.py で固定できます）' % len(noid))
+    for x in noid[:8]:
+        print('     ' + x)
 
 VERSION = '%s (%d枚)' % (DATE, len(lines))
 

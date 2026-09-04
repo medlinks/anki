@@ -16,8 +16,8 @@ const $ = s=>document.querySelector(s);
 const esc = s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const DAY = 86400000, MIN = 60000;
 function hash(str){ let h=0x811c9dc5; for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,0x01000193); } return (h>>>0).toString(36); }
-/* カード ID は「科目（デッキ最上位）＋表の文言」から作る。
-   → サブデッキ名を並べ替えたり 01/02… の番号を振り直しても学習進捗は失われない。 */
+/* 旧方式の ID 計算。原稿の 6 列目に id が無い行（ユーザー追加カードなど）のためだけに残す。
+   通常のカードは原稿に書かれた id をそのまま使う。 */
 function cid(d,q){ return hash(String(d||'').split('::')[0]+'|'+String(q||'')); }
 function today(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function fmtIv(days){ if(days<1) return Math.max(1,Math.round(days*24*60))+'分'; if(days<30) return Math.round(days)+'日'; if(days<365) return (days/30).toFixed(1)+'ヶ月'; return (days/365).toFixed(1)+'年'; }
@@ -32,7 +32,8 @@ function parseTSV(txt){
     if(p.length<3) return;
     const c={ d:(p[0]||'その他').trim(), q:(p[1]||'').trim(), a:(p[2]||'').trim(), n:(p[3]||'').trim(), t:(p[4]||'').trim() };
     if(!c.q||!c.a) return;
-    c.id=cid(c.d,c.q);
+    /* 6 列目に id が書いてあればそれを使う。表の文言を直しても進捗が消えない。 */
+    c.id=(p[5]||'').trim()||cid(c.d,c.q);
     out.push(c);
   });
   return out;
@@ -42,7 +43,7 @@ function rebuild(){
   const base = parseTSV(CARD_DATA);
   const user = LS.get(KEY.user,[]);
   const seen = {}; CARDS=[];
-  base.concat(user).forEach(c=>{ c.id=cid(c.d,c.q); if(seen[c.id]) return; seen[c.id]=1; CARDS.push(c); });
+  base.concat(user).forEach(c=>{ if(!c.id) c.id=cid(c.d,c.q); if(seen[c.id]) return; seen[c.id]=1; CARDS.push(c); });
   BYID={}; CARDS.forEach(c=>BYID[c.id]=c);
 }
 
@@ -111,6 +112,9 @@ function counts(cards){
 
 /* ---------- queue ---------- */
 let QUEUE=[], CUR=null, SHOWN=false, SESSION={done:0,total:0}, LAST=null;
+/* 直近に答えたカードを遡って見返すための履歴（採点には一切影響しない）*/
+let HISTORY=[], HPOS=null;
+const HIST_MAX=50;
 function buildQueue(){
   checkDay();
   const now=Date.now(), dk=CFG.deck;
@@ -208,6 +212,7 @@ function barHTML(cards){
 /* ---------- STUDY ---------- */
 function startStudy(){ buildQueue(); CUR=null; LAST=null; go('study'); }
 function vStudy(){
+  if(HPOS!==null){ vHistory(); return; }
   if(!QUEUE.length && !CUR) buildQueue();
   if(!CUR){ CUR=QUEUE.shift()||null; SHOWN=false; }
   const dkName = CFG.deck||'すべてのデッキ';
@@ -244,6 +249,7 @@ function vStudy(){
    <div id="ctrl"></div>
    <div class="row" style="margin-top:4px">
      <button class="btn" id="sus" style="font-size:12px;padding:6px 11px">⏸ 一時停止</button>
+     <button class="btn" id="hist" style="font-size:12px;padding:6px 11px" ${HISTORY.length?'':'disabled'}>← 前のカード</button>
      <button class="btn" id="undo" style="font-size:12px;padding:6px 11px" ${LAST?'':'disabled'}>↩ 取り消し</button>
      <span class="sp"></span>
      <span style="font-size:11px;color:var(--muted)">EF ${s.ef.toFixed(2)} · ${s.r}回 · ${s.iv?fmtIv(s.iv):'—'}</span>
@@ -263,6 +269,7 @@ function vStudy(){
   fitScene();
   $('#flip').onclick=()=>{ if(!SHOWN) doShow(); };
   $('#sus').onclick=()=>{ const x=Object.assign({s:0,due:0,iv:0,ef:2.5,r:0,l:0,k:0},P[c.id]||{}); x.sus=1; P[c.id]=x; saveP(); toast('このカードを一時停止しました'); CUR=null; vStudy(); };
+  $('#hist').onclick=histOpen;
   $('#undo').onclick=undo;
 }
 function fitScene(){
@@ -272,9 +279,55 @@ function fitScene(){
   sc.style.minHeight=Math.min(h, Math.round(window.innerHeight*0.62))+'px';
 }
 function doShow(){ SHOWN=true; vStudy(); }
+
+/* ---------- 履歴（前のカードを見返す） ---------- */
+function histOpen(){ if(!HISTORY.length) return; HPOS=HISTORY.length-1; vStudy(); }
+function histMove(d){
+  if(HPOS===null) return;
+  const n=HPOS+d;
+  if(n<0 || n>=HISTORY.length) return;
+  HPOS=n; vStudy();
+}
+function histClose(){ HPOS=null; vStudy(); }
+const GRADE_NAME=['','もう一度','難しい','普通','簡単'];
+const GRADE_CLS =['','g1','g2','g3','g4'];
+function vHistory(){
+  const h=HISTORY[HPOS], c=h.card;
+  $('#view').innerHTML=`
+   <div class="histbar">
+     <span>🕘 履歴を見返し中　${HPOS+1} / ${HISTORY.length}</span>
+     <span class="sp"></span>
+     <button class="btn" id="hclose" style="padding:5px 12px;font-size:12.5px">学習に戻る</button>
+   </div>
+   <div class="scene"><div class="flip flipped">
+     <div class="face front"><div class="tag">Question</div>
+       <div class="qtext">${esc(c.q)}</div></div>
+     <div class="face back"><div class="tag">Answer</div>
+       <div class="aq">${esc(c.q)}</div>
+       <div class="atext">${esc(c.a)}</div>
+       ${c.n?`<div class="anote">💡 ${esc(c.n)}</div>`:''}
+       ${c.t?`<div class="anote" style="border:none;padding-top:6px;font-size:11.5px;opacity:.7">🏷 ${esc(c.t)}</div>`:''}
+     </div></div></div>
+   <div class="row" style="margin-top:2px;gap:8px">
+     <button class="btn" id="hprev" ${HPOS<=0?'disabled':''}>← 前</button>
+     <button class="btn" id="hnext" ${HPOS>=HISTORY.length-1?'disabled':''}>次 →</button>
+     <span class="sp"></span>
+     <span class="chip" style="background:var(--panel2)">${GRADE_NAME[h.g]}　→　${h.iv?fmtIv(h.iv):'学習中'}</span>
+   </div>
+   <div style="margin-top:7px;font-size:11.5px;color:var(--muted);padding-left:3px">${esc(c.d)}</div>
+   <p style="font-size:11.5px;color:var(--muted);margin:10px 4px 0">
+     見返しているだけなので、この操作で成績や次回の予定が変わることはありません。<br>
+     採点をやり直したいときは「学習に戻る」→「↩ 取り消し」を使ってください。</p>`;
+  $('#hclose').onclick=histClose;
+  $('#hprev').onclick=()=>histMove(-1);
+  $('#hnext').onclick=()=>histMove(1);
+  fitScene();
+}
 function grade(g){
   const c=CUR; const before=JSON.parse(JSON.stringify(P[c.id]||null));
   answer(c.id,g);
+  HISTORY.push({card:c, g:g, iv:st(c.id).iv, due:st(c.id).due, t:Date.now()});
+  if(HISTORY.length>HIST_MAX) HISTORY.shift();
   LAST={id:c.id,before:before,card:c,dn:DAILY.n,dr:DAILY.r};
   SESSION.done++;
   const s=st(c.id);
@@ -287,6 +340,7 @@ function undo(){
   if(!LAST) return;
   if(LAST.before===null) delete P[LAST.id]; else P[LAST.id]=LAST.before;
   saveP(); LOG.pop(); LS.set(KEY.log,LOG);
+  HISTORY.pop();
   QUEUE=QUEUE.filter(x=>x.id!==LAST.id);
   if(CUR) QUEUE.unshift(CUR);
   CUR=LAST.card; SHOWN=true; SESSION.done=Math.max(0,SESSION.done-1);
@@ -427,7 +481,7 @@ function openSettings(){
   $('#doImp').onclick=()=>{ importText($('#imp').value); close(); };
   $('#pickFile').onclick=()=>$('#file').click();
   $('#file').onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ importText(r.result); close(); }; r.readAsText(f); };
-  $('#expCards').onclick=()=>dl('cards_all.tsv', CARDS.map(c=>[c.d,c.q,c.a,c.n,c.t].join('\t')).join('\n'));
+  $('#expCards').onclick=()=>dl('cards_all.tsv', CARDS.map(c=>[c.d,c.q,c.a,c.n,c.t,c.id].join('\t')).join('\n'));
   $('#expProg').onclick=()=>dl('anki_progress_'+today()+'.json', JSON.stringify({prog:P,log:LOG,daily:DAILY,user:LS.get(KEY.user,[])}));
   $('#impProg').onclick=()=>$('#pfile').click();
   $('#pfile').onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader();
@@ -469,6 +523,13 @@ function dl(name,txt){
 document.addEventListener('keydown',e=>{
   if(/input|textarea|select/i.test((e.target.tagName||''))) return;
   if(VIEW!=='study') { if(e.key==='s'){go('study');} return; }
+  if(HPOS!==null){
+    if(e.key==='ArrowLeft'){ e.preventDefault(); histMove(-1); }
+    else if(e.key==='ArrowRight'){ e.preventDefault(); histMove(1); }
+    else if(e.key==='Escape'||e.key===' '||e.key==='Enter'){ e.preventDefault(); histClose(); }
+    return;
+  }
+  if(e.key==='ArrowLeft'&&HISTORY.length){ e.preventDefault(); histOpen(); return; }
   if(e.key===' '||e.key==='Enter'){ e.preventDefault(); if(!SHOWN&&CUR) doShow(); else if(CUR) grade(3); return; }
   if(SHOWN&&CUR&&['1','2','3','4'].includes(e.key)){ e.preventDefault(); grade(+e.key); }
   if(e.key==='z'&&LAST) undo();

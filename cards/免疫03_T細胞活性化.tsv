@@ -1,0 +1,87 @@
+免疫学::03 T細胞活性化	naive T 細胞の代表マーカーは？	CD45RA⁺、CCR7⁺、CD62L⁺	抗原未遭遇。DC による priming を待つ	T細胞,naive,marker,頻出	k3773a8f9
+免疫学::03 T細胞活性化	central memory（TCM）のマーカーと居場所は？	CD45RO⁺ CCR7⁺ CD62L⁺。リンパ節へ再循環する	増殖能が高い	T細胞,memory,marker	k64cdcd87
+免疫学::03 T細胞活性化	effector memory（TEM）のマーカーと居場所は？	CD45RO⁺ CCR7⁻ CD62L⁻。血液・末梢組織にいる	迅速に effector 機能を出す	T細胞,memory,marker	ka882ba4b
+免疫学::03 T細胞活性化	tissue-resident memory（TRM）のマーカーは？	CD69⁺、しばしば CD103⁺	組織に常在して局所で迅速に応答する	T細胞,memory,marker	k4426bfc5
+免疫学::03 T細胞活性化	naive T 細胞がリンパ節へ入る 3 段階の分子は？	① CD62L ↔ PNAd（rolling）② CCR7 ↔ CCL19/CCL21 ③ LFA-1 ↔ ICAM-1/2（firm adhesion）	CD62L → CCR7 → LFA-1 の順	T細胞,homing,頻出	k1cd25f1e
+免疫学::03 T細胞活性化	T 細胞がリンパ節から出るのに使う分子は？	S1P 濃度勾配と S1PR1		T細胞,homing,頻出	k50803454
+免疫学::03 T細胞活性化	活性化直後の T 細胞がリンパ節に留まる仕組みは？	CD69 が S1PR1 を抑えるため、一時的にリンパ節内に保持される		T細胞,homing	kd732f115
+免疫学::03 T細胞活性化	fingolimod の作用機序と結果は？	S1PR1 の機能的アンタゴニズム。リンパ球をリンパ節に隔離する		T細胞,薬理,頻出	k02cb8b83
+免疫学::03 T細胞活性化	TCR が認識するのは何か？	peptide–MHC 複合体（遊離抗原ではない）		T細胞,TCR,頻出	k5932789a
+免疫学::03 T細胞活性化	TCRαβ 自身がシグナルを伝えられない理由と、伝える分子は？	TCRαβ は十分なシグナル尾部を持たない。CD3γε/δε と ζ 鎖の ITAM が伝える		T細胞,TCR,頻出	k38f7a886
+免疫学::03 T細胞活性化	CD4・CD8 は MHC のどこに結合し、何をするか？	CD4 は MHC II の β2、CD8 は MHC I の α3。Lck を近づけてシグナルを増強する	co-receptor	T細胞,TCR,頻出	k11fd0f74
+免疫学::03 T細胞活性化	免疫シナプスを安定化させる接着分子の対は？	T 細胞側 LFA-1（CD11a/CD18）↔ APC 側 ICAM-1		T細胞,接着	ke4480aaa
+免疫学::03 T細胞活性化	CD2 の相手の分子は？	LFA-3（CD58）	MHC の co-receptor ではない	T細胞,接着	k3a6ab7f3
+免疫学::03 T細胞活性化	CD4⁺ helper T は何を認識し、どの HLA か？	MHC class II（HLA-DP/DQ/DR）		T細胞,MHC,頻出	k577dcfdb
+免疫学::03 T細胞活性化	CD8⁺ CTL は何を認識し、どの HLA か？	MHC class I（HLA-A/B/C）		T細胞,MHC,頻出	k836c6179
+免疫学::03 T細胞活性化	B 細胞と活性化 CD4 T 細胞で、CD40 と CD40L はそれぞれどちら側か？	B 細胞側が CD40、活性化 CD4 T 細胞側が CD40L（CD154）	「対応細胞が発現する分子」を問われたら左側自身の marker ではない	T細胞,共刺激,頻出,罠	k6d128f41
+免疫学::03 T細胞活性化	naive T 細胞活性化の Signal 1 は？	APC 側 peptide–MHC ↔ T 細胞側 TCR/CD3＋CD4/CD8。抗原特異性を与える	単独では完全活性化しない	T細胞,3signal,頻出	k95cfbbf1
+免疫学::03 T細胞活性化	Signal 2 は？欠けるとどうなる？	APC 側 B7-1(CD80)/B7-2(CD86) ↔ T 細胞側 CD28。欠けると anergy または deletion	IL-2・生存・代謝・増殖を許可する	T細胞,3signal,頻出	k2d246354
+免疫学::03 T細胞活性化	Signal 3 は？欠けるとどうなる？	IL-12、IL-4、IL-6/TGF-β、IL-21 などのサイトカイン。欠けると分化方向が定まらない	Th subset や CD8 program を決める	T細胞,3signal,頻出	k56986dbe
+免疫学::03 T細胞活性化	末梢組織の樹状細胞が成熟すると何が起こる？	PRR 刺激で MHC・B7・CCR7 が上昇し、所属リンパ節へ移動する		T細胞,DC	k49cf62a4
+免疫学::03 T細胞活性化	活性化 T 細胞が clonal expansion するときに上がる分子は？	IL-2 と CD25		T細胞,増殖	k0cddf091
+免疫学::03 T細胞活性化	CAR と通常の TCR の違いは？	CAR は表面抗原を抗体由来 scFv で直接認識し MHC 非依存。TCR は peptide–MHC を認識し MHC 依存	CAR のシグナルは CD3ζ＋CD28 または 4-1BB など	T細胞,CAR,頻出	kf25bbfb9
+免疫学::03 T細胞活性化	TCR シグナルの最初の段階は？	CD4/CD8 に結合した Lck が CD3/ζ の ITAM をリン酸化し、ZAP-70 が結合する		T細胞,シグナル,頻出	k3f98e68e
+免疫学::03 T細胞活性化	ZAP-70 は何をリン酸化するか？	LAT と SLP-76。signalosome を作る		T細胞,シグナル	k2599fd7c
+免疫学::03 T細胞活性化	PLCγ1 が作る 2 つの分子は？	PIP2 から IP3 と DAG	ここから 3 経路に分岐する	T細胞,シグナル,頻出	k77508f9e
+免疫学::03 T細胞活性化	IP3 から NFAT が核へ入るまでの流れは？	IP3 → Ca²⁺/カルモジュリン → カルシニューリン → NFAT 脱リン酸化 → 核移行		T細胞,シグナル,頻出	kbf1b0120
+免疫学::03 T細胞活性化	DAG から AP-1 ができる経路は？	DAG → Ras/MAPK → Fos/Jun → AP-1		T細胞,シグナル	kd0cb569d
+免疫学::03 T細胞活性化	DAG から NF-κB が核へ入る経路は？	DAG → PKCθ → CBM複合体 → IKK → IκB 分解 → NF-κB 核移行		T細胞,シグナル	kf13ca470
+免疫学::03 T細胞活性化	IL2 遺伝子の転写に必要な 3 つの転写因子は？	NFAT、AP-1、NF-κB		T細胞,シグナル,頻出	k87b44f83
+免疫学::03 T細胞活性化	カルシニューリンは何をする酵素で、何が阻害するか？	NFAT を脱リン酸化するホスファターゼ。cyclosporine と tacrolimus が阻害し IL-2 転写を下げる		T細胞,シグナル,薬理,頻出	k0f2286db
+免疫学::03 T細胞活性化	IL-2R のシグナル経路は？	JAK1/JAK3 → STAT5。増殖と Treg 維持		T細胞,シグナル,JAK	k835b8910
+免疫学::03 T細胞活性化	IL-12R のシグナル経路と分化方向は？	JAK2/TYK2 → STAT4。Th1 分化		T細胞,シグナル,JAK,頻出	k14dc88c5
+免疫学::03 T細胞活性化	IL-4R のシグナル経路と分化方向は？	JAK1/JAK3 → STAT6。Th2 分化		T細胞,シグナル,JAK,頻出	k627f3f05
+免疫学::03 T細胞活性化	IL-6/IL-23R のシグナル経路と分化方向は？	JAK1/JAK2/TYK2 → STAT3。Th17 program		T細胞,シグナル,JAK,頻出	k29dfbbf2
+免疫学::03 T細胞活性化	CD28 と CTLA-4 は同じ B7 に結合するが、どう違う？	CD28 は促進（Signal 2）。CTLA-4（CD152）は CD28 より高親和性で priming を抑制する		T細胞,共刺激,頻出	k491534d9
+免疫学::03 T細胞活性化	PD-1（CD279）の相手と作用は？	PD-L1/PD-L2 と結合。末梢での effector 機能を下げ、慢性刺激では exhaustion を招く		T細胞,checkpoint,頻出	kaaffed0b
+免疫学::03 T細胞活性化	ICOS の相手と役割は？	ICOS-L。Tfh と B 細胞 help を促進する		T細胞,共刺激	kd20edc7b
+免疫学::03 T細胞活性化	OX40（CD134）の相手と役割は？	OX40L。生存と memory 形成を促進する		T細胞,共刺激	k947fd6cc
+免疫学::03 T細胞活性化	CD40–CD40L の相互作用で何が起こる？	DC licensing、マクロファージ活性化、B 細胞のクラススイッチ		T細胞,共刺激,頻出	k25e676f6
+免疫学::03 T細胞活性化	anergy はどういう状態か？	Signal 1 だけで共刺激を欠いたときに生じる、抗原特異的な無反応		T細胞,寛容,頻出	ke0e70f62
+免疫学::03 T細胞活性化	deletion はどういう状態か？	反復刺激や成長因子不足でアポトーシスが起き、clone が消失する		T細胞,寛容	k50ee9a4b
+免疫学::03 T細胞活性化	exhaustion はどういう状態か？	慢性感染や腫瘍の持続抗原により PD-1 などが上がり、サイトカイン産生と殺傷能が段階的に低下する		T細胞,寛容,頻出	k5943b083
+免疫学::03 T細胞活性化	IL-2 を主に産生するのはどの細胞か？	主に活性化 CD4 T 細胞。活性化 CD8 も産生する	naive T のみ産生する、は誤り	T細胞,IL-2,頻出,罠	k4865f723
+免疫学::03 T細胞活性化	高親和性 IL-2 受容体の構成は？	α鎖 CD25 ＋ β鎖 CD122 ＋ 共通γ鎖 CD132	CD25 のホモ三量体ではない	T細胞,IL-2,頻出,罠	k479eb865
+免疫学::03 T細胞活性化	IL-2R の α 鎖の役割は？	主に親和性を高める。シグナルは βγ 鎖が JAK1/JAK3 → STAT5 で伝える		T細胞,IL-2	k24899d33
+免疫学::03 T細胞活性化	Treg と IL-2 の関係は？	Treg は CD25 を高発現し、生存・維持に IL-2 が必須	Treg は IL-2 不要、は誤り	T細胞,IL-2,Treg,頻出,罠	kf885f41e
+免疫学::03 T細胞活性化	memory T 細胞の長期維持に重要なサイトカインは？	IL-7 と IL-15	IL-2 だけで全 memory を維持するわけではない	T細胞,memory,頻出,罠	k5330c5f4
+免疫学::03 T細胞活性化	活性化後の population 変化 4 相は？	expansion → differentiation → contraction → memory	contraction では大部分がアポトーシスする	T細胞,増殖	k9bd3556d
+免疫学::03 T細胞活性化	Th1 の誘導サイトカイン・転写因子・産生サイトカインは？	誘導 IL-12/IFN-γ、転写因子 STAT4・T-bet、産生 IFN-γ・IL-2		T細胞,Th1,頻出	k7769b5ff
+免疫学::03 T細胞活性化	Th1 の主な機能と防御対象は？	古典的マクロファージ活性化と CTL help。細胞内細菌やウイルスを防御	IV型反応や自己免疫にも関与	T細胞,Th1,頻出	kc8ff4712
+免疫学::03 T細胞活性化	Th2 の誘導サイトカイン・転写因子・産生サイトカインは？	誘導 IL-4、転写因子 STAT6・GATA-3、産生 IL-4・IL-5・IL-13		T細胞,Th2,頻出	kb673a9f0
+免疫学::03 T細胞活性化	Th2 の主な機能と防御対象は？	好酸球・マスト細胞・IgE・粘液。蠕虫を防御	アレルギー、喘息に関与	T細胞,Th2,頻出	k967e0377
+免疫学::03 T細胞活性化	Th17 の誘導・維持サイトカインは？	初期誘導は TGF-β ＋ IL-6（＋IL-1）。維持・病原性は IL-23	IL-23 だけを初期誘導とするのは誤り	T細胞,Th17,頻出,罠	kb597804e
+免疫学::03 T細胞活性化	Th17 の転写因子と産生サイトカインは？	転写因子 STAT3・RORγt、産生 IL-17A/F・IL-22		T細胞,Th17,頻出	k251bb859
+免疫学::03 T細胞活性化	Th17 の主な機能と防御対象は？	CXCL8・G-CSF を介した好中球誘導とバリア維持。細胞外細菌や真菌を防御	乾癬、IBD に関与	T細胞,Th17,頻出	k356ae91e
+免疫学::03 T細胞活性化	Tfh の誘導・転写因子・産生サイトカインは？	誘導 IL-6/IL-21 と ICOS、転写因子 BCL-6、産生 IL-21・IL-4		T細胞,Tfh,頻出	k2ef46b1f
+免疫学::03 T細胞活性化	Tfh の主な機能は？	胚中心での B 細胞 help、クラススイッチ、親和性成熟		T細胞,Tfh,頻出	kc6c50527
+免疫学::03 T細胞活性化	Treg の誘導・転写因子・産生サイトカインは？	誘導 TGF-β ＋ IL-2、転写因子 STAT5・FOXP3、産生 IL-10・TGF-β・IL-35		T細胞,Treg,頻出	kbd5c5964
+免疫学::03 T細胞活性化	Treg の主な機能と、FOXP3 異常で起こる疾患は？	CTLA-4・CD25 を介した自己寛容の維持。FOXP3 異常で IPEX		T細胞,Treg,頻出	k0a75da65
+免疫学::03 T細胞活性化	古典的マクロファージ活性化に必要な 2 つは？	Th1 由来の IFN-γ と CD40L	好中球誘導の Th17 と混同しない	T細胞,Th1,頻出,罠	kd2e2b5e9
+免疫学::03 T細胞活性化	CD8 T 細胞の priming の特徴は？	DC による cross-presentation と B7–CD28。CD40L による DC licensing と IL-2 の help を受ける		T細胞,CD8,頻出	k0bf70e37
+免疫学::03 T細胞活性化	CTL の主な effector 分子は？	perforin/granzyme、FasL、IFN-γ		T細胞,CD8,頻出	kcdd5c592
+免疫学::03 T細胞活性化	急性細胞性拒絶の主役と機序は？	recipient の T 細胞が donor の allo-MHC を直接または間接に認識する		T細胞,移植,頻出	k36912485
+免疫学::03 T細胞活性化	GVHR/GVHD が起こる条件は？	移植片に含まれる免疫能を持つ donor T 細胞が、免疫不全の recipient 組織を非自己と認識する		T細胞,移植,頻出	kc9094401
+免疫学::03 T細胞活性化	親 → F1 への骨髄移植で GVHR が起きやすい理由は？	親由来 donor T 細胞が、F1 のもう一方の親由来 MHC を非自己と認識するため		T細胞,移植,頻出	k81b6c398
+免疫学::03 T細胞活性化	超急性拒絶の主因は？	既存抗体。T 細胞活性化が主因ではない		T細胞,移植,頻出,罠	k4dacd647
+免疫学::03 T細胞活性化	胸腺の正選択とは？何が決まるか？	self-MHC を適度に認識できる T 細胞が生存する。これにより MHC restriction が決まる	皮質上皮細胞が担う	T細胞,寛容,頻出	k5d52bb19
+免疫学::03 T細胞活性化	胸腺の負選択とは？関わる分子・細胞は？	self-pMHC を強く認識する clone を deletion する。AIRE/FEZF2、髄質上皮細胞・DC		T細胞,寛容,頻出	k12c29655
+免疫学::03 T細胞活性化	末梢性寛容の 3 つの仕組みは？	anergy、Treg による抑制、deletion/AICD	自己寛容は胸腺だけでは完結しない	T細胞,寛容,頻出	k3185ceb1
+免疫学::03 T細胞活性化	AICD に関わる分子は？	Fas–FasL、Bim		T細胞,寛容	k985c7537
+免疫学::03 T細胞活性化	抗原受容体の編集（receptor editing）は主にどの細胞で起こる？	B 細胞		T細胞,寛容,罠	k7bc4a220
+免疫学::03 T細胞活性化	cyclosporine の結合分子と作用は？	cyclophilin と結合しカルシニューリンを阻害。NFAT 核移行が減り IL-2 転写が低下する		T細胞,薬理,頻出	k0bb62ffb
+免疫学::03 T細胞活性化	tacrolimus の結合分子と作用は？	FKBP12 と結合しカルシニューリンを阻害。IL-2 転写が低下する		T細胞,薬理,頻出	k017f109c
+免疫学::03 T細胞活性化	sirolimus の標的と作用は？	FKBP12 と結合して mTORC1 を阻害。IL-2 応答と細胞周期が抑えられる	カルシニューリンではない	T細胞,薬理,頻出,罠	k4600ebf5
+免疫学::03 T細胞活性化	mycophenolate の作用機序は？	IMP dehydrogenase を阻害して核酸合成を止め、T/B 細胞の増殖を抑える		T細胞,薬理	k593e9b97
+免疫学::03 T細胞活性化	グルココルチコイドの作用機序は？	GR と結合し NF-κB や AP-1 を抑制して炎症分子・サイトカインの転写を下げる		T細胞,薬理	k6503955b
+免疫学::03 T細胞活性化	abatacept／belatacept は何か？	CTLA-4-Ig。B7 を遮って CD28 共刺激を止め、priming を抑える		T細胞,薬理,頻出	k97410e6d
+免疫学::03 T細胞活性化	basiliximab の標的は？	IL-2Rα（CD25）を遮断して増殖を抑える		T細胞,薬理,頻出	kf0e41e1a
+免疫学::03 T細胞活性化	checkpoint 阻害薬の作用と代表的な副作用は？	CTLA-4/PD-1/PD-L1 の抑制シグナルを解除して抗腫瘍免疫を高める。副作用は irAE（免疫関連有害事象）	副作用を感染だけとするのは誤り	T細胞,薬理,頻出,罠	k974c9c08
+免疫学::03 T細胞活性化	細胞内細菌（結核・Listeria 等）に必要な T 細胞応答は？	Th1 → IFN-γ ＋ CD40L → マクロファージ活性化。CTL も関与	抗体だけでは不十分	T細胞,臨床,頻出	k37cd73e7
+免疫学::03 T細胞活性化	細胞外細菌・真菌（Candida 等）に必要な T 細胞応答は？	Th17 → IL-17/IL-22 → 好中球とバリア	CD4/Th17 欠損で感受性が上がる	T細胞,臨床,頻出	kf3b3ce2d
+免疫学::03 T細胞活性化	ウイルス感染で主役となる免疫は？	CD8 CTL、Th1、I 型インターフェロン	MHC I による提示	T細胞,臨床	k9f13644f
+免疫学::03 T細胞活性化	蠕虫感染で主役となる免疫は？	Th2、IL-4/5/13、IgE、好酸球	I 型反応とつながる	T細胞,臨床,頻出	k04be7087
+免疫学::03 T細胞活性化	IV 型過敏反応の主役は？	Th1・Th17、ときに CTL	接触皮膚炎、セリアック病など	T細胞,臨床,頻出	ke04a7eb6
+免疫学::03 T細胞活性化	naive CD4 T 細胞の活性化に必要な 3 要素を一息で言うと？	MHC II/TCR-CD4 ＋ B7/CD28 ＋ Signal 3	APC 側に CD4 や CD28 を書くのは誤り	T細胞,まとめ,頻出,罠	kea4164dc
+免疫学::03 T細胞活性化	TCR シグナルの流れを一息で言うと？	CD3/ζ の ITAM → Lck → ZAP-70 → LAT → PLCγ1		T細胞,まとめ,頻出	kc3c5d8a3
+免疫学::03 T細胞活性化	Th1 と Th17 を取り違えないための対比は？	Th1 は IL-12/STAT4/T-bet/IFN-γ でマクロファージ。Th17 は TGF-β＋IL-6/RORγt/IL-17 で好中球		T細胞,まとめ,頻出,罠	k4648d12d
